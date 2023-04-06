@@ -25,6 +25,7 @@ declare module 'discord.js' {
     // THE FOLLOWING EVENTS ARE EXTENSIONS:
     interface ClientEvents {
         raw: [discordAPI.GatewayDispatchPayload];
+        ccbotMessageReactionAdd: [discord.Emoji, discord.Snowflake, discord.Snowflake, discord.Snowflake];
         ccbotMessageDeletes: [TextBasedChannel, discord.Snowflake[]];
         ccbotMessageUpdateUnchecked: [TextBasedChannel, discord.Snowflake];
         ccbotBanAddRemove: [discord.Guild, discordAPI.APIUser, boolean]
@@ -109,7 +110,9 @@ export abstract class CCBot extends commando.CommandoClient {
             const user = this.users.cache.get(event.d.user_id);
             if (!user)
                 return;
-            const entity = this.entities.getEntity(`message-${event.d.message_id}`);
+            let entity = this.entities.getEntity(`message-${event.d.message_id}`);
+            if (!entity && event.d.guild_id)
+                entity = this.entities.getEntity(`starboard-${event.d.guild_id}`);
             if (!entity)
                 return;
             const emojiDetails: discordAPI.APIEmoji = event.d.emoji;
@@ -124,6 +127,9 @@ export abstract class CCBot extends commando.CommandoClient {
                 emoji = this.emoteRegistry.emojiResolverNina(emojiDetails.name!);
             }
             entity.emoteReactionTouched(emoji, user, event.t == 'MESSAGE_REACTION_ADD');
+            if (event.d.guild_id) {
+                this.emit('ccbotMessageReactionAdd', emoji, event.d.message_id, event.d.channel_id, event.d.guild_id)
+            }
         } else if ((event.t == 'MESSAGE_UPDATE') || (event.t == 'MESSAGE_DELETE') || (event.t == 'MESSAGE_DELETE_BULK')) {
             const channel = this.channels.cache.get(event.d.channel_id);
             // No channel means no guild, so nowhere to route

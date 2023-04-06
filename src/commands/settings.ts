@@ -101,6 +101,8 @@ async function runLocalSettingTransaction(provider: commando.SettingProvider, co
     } else if ((name === 'channel-greet') || (name === 'channel-info') || (name === 'channel-syslog') || (name === 'channel-editlog')) {
         if ((value === undefined) || (typeof value === 'string'))
             maxLength = limitLocalChannelName;
+    } else if (name === "starboard-channel") { // "channelid"
+        maxLength = 20;
     }
     if (!maxLength)
         return 'The setting was not recognized. If this setting is readable, keep in mind that some documented settings are automatically maintained.';
