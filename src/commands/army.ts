@@ -97,7 +97,17 @@ export default class ArmyCommand extends CCBotCommand {
             '**You are being raided!**'
         ];
 
-        const line = `<:a:${emoteUse.id}>`.repeat(args.width);
+        // The custom logic here has a bit of a fallacy when constructing the
+        // emote by hand for the custom name. Unicode emotes obviously do not
+        // have an ID, as the IDs are merely snowflakes that correspond to the
+        // emote's creation. So, when using a Unicode emote, we must construct
+        // the string a tad differently.
+        let line = "";
+        if (emoteUse.id)
+            line = `<:a:${emoteUse.id}>`.repeat(args.width);
+        else
+            line = `${emoteUse.name}`.repeat(args.width);
+
         for (let i = 0; i < args.height; i++)
             lines.push(line);
 
