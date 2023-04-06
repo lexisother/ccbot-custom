@@ -9,9 +9,16 @@ export interface StarboardData extends EntityData {
   starBinds?: Record<discord.Snowflake, discord.Snowflake>;
 }
 
+/// I wish every
+///   reader of this code
+/// a happy
+///   aneurysm
 class StarboardEntity extends CCBotEntity {
+  /// Guild we're watching.
   private guild: discord.Guild;
+  /// The amount of stars on a message.
   private messages: Record<discord.Snowflake, number>;
+  /// Record of starboard messages that map to their origin messages.
   private starBinds: Record<discord.Snowflake, discord.Snowflake>;
 
   public constructor(c: CCBot, g: discord.Guild, data: StarboardData) {
@@ -22,7 +29,7 @@ class StarboardEntity extends CCBotEntity {
     this.client.on('ccbotMessageReactionAdd', this.handleReactionAdd.bind(this));
   }
 
-  public handleReactionAdd(
+  public async handleReactionAdd(
     emote: discord.Emoji,
     message: discord.Snowflake,
     channel: discord.Snowflake,
@@ -37,19 +44,20 @@ class StarboardEntity extends CCBotEntity {
       if (!this.messages[message]) this.messages[message] = 0;
       this.messages[message]++;
       if (this.messages[message] >= 1) {
+        // Don't look at it. {{{
         let fromChannel = this.guild.channels.cache.get(channel) as discord.TextChannel;
         if (!fromChannel)
-          this.client.channels.fetch(channel).then((c) => (fromChannel = c as discord.TextChannel));
+          fromChannel = (await this.client.channels.fetch(channel)) as discord.TextChannel;
         let starredMessage = fromChannel.messages.cache.get(message) as discord.Message;
         if (!starredMessage)
-          fromChannel.messages.fetch(message).then((m) => (starredMessage = m as discord.Message));
-
+          starredMessage = (await fromChannel.messages.fetch(message)) as discord.Message;
         let starboardChannel = this.guild.channels.cache.get(gChannel) as discord.TextChannel;
         if (!starboardChannel)
-          this.client.channels
-            .fetch(gChannel)
-            .then((c) => (starboardChannel = c as discord.TextChannel));
-        starboardChannel.send(starredMessage.content);
+          starboardChannel = (await this.client.channels.fetch(gChannel)) as discord.TextChannel;
+        // }}}
+
+        const starboardMessage = await starboardChannel.send(starredMessage.content);
+        this.starBinds[starboardMessage.id] = starredMessage.id;
         this.toSaveData();
       }
     }
