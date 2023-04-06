@@ -18,7 +18,7 @@ class StarboardEntity extends CCBotEntity {
   private guild: discord.Guild;
   /// The amount of stars on a message.
   private messages: Record<discord.Snowflake, number>;
-  /// Record of starboard messages that map to their origin messages.
+  /// Record of origin messages that map to their starboard messages.
   private starBinds: Record<discord.Snowflake, discord.Snowflake>;
 
   public constructor(c: CCBot, g: discord.Guild, data: StarboardData) {
@@ -43,7 +43,10 @@ class StarboardEntity extends CCBotEntity {
     if (emote.name === '⭐') {
       if (!this.messages[message]) this.messages[message] = 0;
       this.messages[message]++;
-      if (this.messages[message] >= 1) {
+      let starboardChannel = this.guild.channels.cache.get(gChannel) as discord.TextChannel;
+      if (!starboardChannel)
+        starboardChannel = (await this.client.channels.fetch(gChannel)) as discord.TextChannel;
+      if (this.messages[message] === 1) {
         // Don't look at it. {{{
         let fromChannel = this.guild.channels.cache.get(channel) as discord.TextChannel;
         if (!fromChannel)
@@ -51,14 +54,28 @@ class StarboardEntity extends CCBotEntity {
         let starredMessage = fromChannel.messages.cache.get(message) as discord.Message;
         if (!starredMessage)
           starredMessage = (await fromChannel.messages.fetch(message)) as discord.Message;
-        let starboardChannel = this.guild.channels.cache.get(gChannel) as discord.TextChannel;
-        if (!starboardChannel)
-          starboardChannel = (await this.client.channels.fetch(gChannel)) as discord.TextChannel;
         // }}}
 
-        const starboardMessage = await starboardChannel.send(starredMessage.content);
-        this.starBinds[starboardMessage.id] = starredMessage.id;
+        const starboardMessage = await starboardChannel.send(
+          `⭐ ${this.messages[message]}: ${starredMessage.content}`,
+        );
+        this.starBinds[starredMessage.id] = starboardMessage.id;
         this.toSaveData();
+      }
+      if (this.messages[message] >= 2) {
+        let starboardMessage = starboardChannel.messages.cache.get(
+          this.starBinds[message],
+        ) as discord.Message;
+        if (!starboardMessage)
+          starboardMessage = (await starboardChannel.messages.fetch(
+            this.starBinds[message],
+          )) as discord.Message;
+
+        const newContent = starboardMessage.content.replace(
+          /⭐ \d+/,
+          `⭐ ${this.messages[message]}`,
+        );
+        await starboardMessage.edit(newContent);
       }
     }
   }
