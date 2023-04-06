@@ -97,7 +97,7 @@ export default class ArmyCommand extends CCBotCommand {
             '**You are being raided!**'
         ];
 
-        const line = emoteUse.toString().repeat(args.width);
+        const line = `<:a:${emoteUse.id}>`.repeat(args.width);
         for (let i = 0; i < args.height; i++)
             lines.push(line);
 
