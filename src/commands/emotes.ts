@@ -212,6 +212,7 @@ export class ReactCommand extends CCBotCommand {
             const emote = await userAwareGetEmote(this.client, message.author, message.guild || null, args.emotes[i]);
             if (!emoteSafe(emote, targetChannel))
                 continue;
+            // @ts-ignore
             await targetMessage.react(emote instanceof discord.BaseGuildEmoji ? emote : emote.name);
         }
         return [];

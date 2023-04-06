@@ -113,6 +113,7 @@ export default class JSONCommand extends CCBotCommand {
             if (this.command.commandReactions) {
                 for (const react of this.command.commandReactions) {
                     const emote = await userAwareGetEmote(this.client, message.author, message.guild || null, react);
+                    // @ts-ignore
                     await message.react(emote instanceof discord.BaseGuildEmoji ? emote : emote.name);
                 }
             }
