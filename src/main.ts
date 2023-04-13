@@ -45,8 +45,16 @@ class CCBotMain {
         // See ccbot-impl.ts for more details on what's going on here.
         // Use CCBot to refer to the class.
         this.client = new CCBotImpl({
-            owner: this.secrets.owner,
-            commandPrefix: this.secrets.commandPrefix
+            owners: typeof this.secrets.owner === "string" ? [this.secrets.owner] : this.secrets.owner,
+            prefix: this.secrets.commandPrefix,
+            intents: [
+                'Guilds',         'GuildEmojisAndStickers',   // these should go without saying
+                'GuildMembers',                               // (privileged) required for greeter, react-roles and a few other things
+                'GuildBans',                                  // required for auditor
+                // messages and reactions
+                'GuildMessages',  'GuildMessageReactions',
+                'DirectMessages', 'DirectMessageReactions'
+            ]
         }, this.secrets.twitchClientId, this.secrets.youtubeData3Key);
         this.dataCollector = null;
 
@@ -77,7 +85,7 @@ class CCBotMain {
             this.client.on('raw', (): void => {
                 tallyRaw++;
             });
-            this.client.on('message', (msg: discord.Message): void => {
+            this.client.on('messageCreate', (msg: commando.CommandoifiedMessage): void => {
                 if (msg.author == this.client.user)
                     tallyCreatedMessages++;
             });
