@@ -31,9 +31,9 @@
   },
   "dependencies": {
     "bufferutil": "^4.0.3",
-    "discord-api-types": "^0.31.0",
-    "discord.js": "^12.4.0",
-    "discord.js-commando": "^0.12.2",
+    "discord-api-types": "^0.37.38",
+    "discord.js": "^14.9.0",
+    "discord.js-commando": "github:Pixoll/pixoll-commando",
     "utf-8-validate": "^5.0.4",
     "zlib-sync": "^0.1.7"
   }
