@@ -18,24 +18,17 @@ import * as commando from 'discord.js-commando';
 import CCBotEmoteRegistry from './emote-registry';
 import DynamicDataManager from './dynamic-data';
 import {Entity, EntityData, EntityRegistry} from './entity-registry';
-import {GuildTextBasedChannel, TextBasedChannel} from './utils';
-import * as discordAPI from 'discord-api-types/v8';
+import * as discordAPI from 'discord-api-types/v10';
 
 declare module 'discord.js' {
     // THE FOLLOWING EVENTS ARE EXTENSIONS:
     interface ClientEvents {
         raw: [discordAPI.GatewayDispatchPayload];
-        ccbotMessageDeletes: [TextBasedChannel, discord.Snowflake[]];
-        ccbotMessageUpdateUnchecked: [TextBasedChannel, discord.Snowflake];
+        ccbotMessageDeletes: [commando.CommandoGuildTextBasedChannel, discord.Snowflake[]];
+        ccbotMessageUpdateUnchecked: [commando.CommandoTextBasedChannel, discord.Snowflake];
         ccbotBanAddRemove: [discord.Guild, discordAPI.APIUser, boolean]
     }
 
-}
-
-declare module 'discord.js-commando' {
-    interface CommandoMessage {
-        client: commando.Client;
-    }
 }
 
 /// The modified CommandoClient used by this bot.
@@ -49,18 +42,8 @@ export abstract class CCBot extends commando.CommandoClient {
 
     protected constructor(co: commando.CommandoClientOptions) {
         // TODO: get rid of this by always fetching guild members explicitly when needed???
-        co.fetchAllMembers = true;
-        co.ws = {
-            intents: [
-                'GUILDS', 'GUILD_EMOJIS',   // these should go without saying
-                'GUILD_MEMBERS',            // (privileged) required for greeter, react-roles and a few other things
-                'GUILD_BANS',               // required for auditor
-                // messages and reactions
-                 'GUILD_MESSAGES',  'GUILD_MESSAGE_REACTIONS',
-                'DIRECT_MESSAGES', 'DIRECT_MESSAGE_REACTIONS'
-            ]
-        };
-        co.messageEditHistoryMaxSize = 0;
+        // co.fetchAllMembers = true;
+        // co.messageEditHistoryMaxSize = 0;
         super(co);
         this.emoteRegistry = new CCBotEmoteRegistry(this);
         this.dynamicData = new DynamicDataManager();
@@ -113,7 +96,7 @@ export abstract class CCBot extends commando.CommandoClient {
             if (!entity)
                 return;
             const emojiDetails: discordAPI.APIEmoji = event.d.emoji;
-            let emoji: discord.Emoji;
+            let emoji: commando.CommandoGuildEmoji;
             if (emojiDetails.id) {
                 const emojiX = this.emojis.cache.get(emojiDetails.id);
                 if (!emojiX)
@@ -130,11 +113,11 @@ export abstract class CCBot extends commando.CommandoClient {
             if (!channel)
                 return;
             if (event.t == 'MESSAGE_UPDATE') {
-                this.emit('ccbotMessageUpdateUnchecked', channel as TextBasedChannel, event.d.id);
+                this.emit('ccbotMessageUpdateUnchecked', channel as commando.CommandoTextBasedChannel, event.d.id);
             } else if (event.t == 'MESSAGE_DELETE') {
-                this.emit('ccbotMessageDeletes', channel as TextBasedChannel, [event.d.id]);
+                this.emit('ccbotMessageDeletes', channel as commando.CommandoGuildTextBasedChannel, [event.d.id]);
             } else if (event.t == 'MESSAGE_DELETE_BULK') {
-                this.emit('ccbotMessageDeletes', channel as GuildTextBasedChannel, event.d.ids);
+                this.emit('ccbotMessageDeletes', channel as commando.CommandoGuildTextBasedChannel, event.d.ids);
             }
         } else if ((event.t == 'GUILD_BAN_ADD') || (event.t == 'GUILD_BAN_REMOVE')) {
             const guild = this.guilds.cache.get(event.d.guild_id);
