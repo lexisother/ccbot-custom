@@ -18,6 +18,7 @@ import * as commando from 'discord.js-commando';
 import CCBotEmoteRegistry from './emote-registry';
 import DynamicDataManager from './dynamic-data';
 import {Entity, EntityData, EntityRegistry} from './entity-registry';
+import {SaneSettingProvider} from "./setting-provider"
 import * as discordAPI from 'discord-api-types/v10';
 
 declare module 'discord.js' {
@@ -26,7 +27,7 @@ declare module 'discord.js' {
         raw: [discordAPI.GatewayDispatchPayload];
         ccbotMessageDeletes: [commando.CommandoGuildTextBasedChannel, discord.Snowflake[]];
         ccbotMessageUpdateUnchecked: [commando.CommandoTextBasedChannel, discord.Snowflake];
-        ccbotBanAddRemove: [discord.Guild, discordAPI.APIUser, boolean]
+        ccbotBanAddRemove: [commando.CommandoGuild, discordAPI.APIUser, boolean]
     }
 
 }
@@ -35,7 +36,7 @@ declare module 'discord.js' {
 /// This contains all of the fields and methods for the extension,
 /// but not the full constructor, and must not be constructed.
 /// See ccbot-impl.ts for why this is.
-export abstract class CCBot extends commando.CommandoClient {
+export abstract class CCBot<Ready extends boolean = boolean> extends commando.CommandoClient<Ready, boolean, SaneSettingProvider> {
     public dynamicData: DynamicDataManager;
     public entities: EntityRegistry<CCBot, CCBotEntity>;
     public emoteRegistry: CCBotEmoteRegistry;
