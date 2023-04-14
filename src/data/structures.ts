@@ -29,7 +29,7 @@ export interface Command {
     // See formatter.ts for more details.
     format?: string;
     // Embed (Note, however, that all strings here are valid targets for format directives!)
-    embed?: discord.MessageEmbedOptions;
+    embed?: discord.EmbedData;
     // Reactions to the command.
     commandReactions?: string[];
 }
@@ -61,6 +61,12 @@ export interface Secrets {
 export interface GuildData {[setting: string]: unknown}
 
 export interface GuildIndex {[guildID: string]: GuildData}
+
+export interface SettingsStructure {
+    prefix: string | null;
+    [k: `cmd-${string}-${string}`]: boolean;
+    [k: `grp-${string}`]: boolean;
+}
 
 /// see https://github.com/CCDirectLink/CCModDB
 export interface CCModDBPackagePage {
