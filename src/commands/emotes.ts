@@ -39,12 +39,12 @@ export class ListEmotesCommand extends CCBotCommand {
                     default: ''
                 }
             ]
-        };
+        } as const;
         super(client, opt);
         this.sfw = sfw;
     }
 
-    public async run(message: commando.CommandoMessage, args: {search: string}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {search: string}): Promise<commando.CommandoMessageResponse> {
         if (args.search == 'overrides')
             if (!message.guild)
                 return await message.say('Cannot get overrides for a guild that doesn\'t exist.');
@@ -105,7 +105,7 @@ export class EmoteCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandoMessage, args: {emotes: string[]}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {emotes: string[]}): Promise<commando.CommandoMessageResponse> {
         if ((args.emotes.length > 0) && (args.emotes[0] == 'emote_reset')) {
             if (localAdminCheck(message)) {
                 this.client.emoteRegistry.updateGlobalEmoteRegistry();
@@ -158,11 +158,11 @@ export class ReactCommand extends CCBotCommand {
                     infinite: true
                 }
             ]
-        };
+        } as const;
         super(client, opt);
     }
 
-    public async run(message: commando.CommandoMessage, args: {emotes: string[]}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {emotes: string[]}): Promise<commando.CommandoMessageResponse> {
         if (args.emotes.length > 8)
             return await message.say('Why?');
         // NOTE: To prevent NSFW emote leakage, that check is done based on the target channel.
@@ -171,16 +171,16 @@ export class ReactCommand extends CCBotCommand {
         let targetMessage: discord.Message;
         let start = 0;
         if (
-            (message.type === 'DEFAULT' || message.type as string === 'REPLY') && message.reference != null &&
-            message.reference.guildID === message.guild.id && message.reference.messageID != null
+            (message.type === discord.MessageType.Default || message.type === discord.MessageType.Reply) && message.reference != null &&
+            message.reference.guildId === message.guild.id && message.reference.messageId != null
         ) {
-            let referencedChannel = message.guild.channels.cache.get(message.reference.channelID);
+            let referencedChannel = message.guild.channels.cache.get(message.reference.channelId);
             if (referencedChannel == null || !isGuildChannelTextBased(referencedChannel)) {
                 return await message.say('That\'s surprising. How did you manage to reply to a message from an invalid channel?');
             }
             targetChannel = referencedChannel;
             try {
-                targetMessage = await targetChannel.messages.fetch(message.reference.messageID);
+                targetMessage = await targetChannel.messages.fetch(message.reference.messageId);
             } catch (_e) {
                 return await message.say('The message you replied to most likely was deleted.');
             }

@@ -29,7 +29,8 @@ export class InspireCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandoMessage): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage): Promise<commando.CommandoMessageResponse> {
+        if (!this.client.isProviderReady()) return message.say("Something terrible has happened, the settings provider is not initialized.");
         const quotes: string[] = this.client.provider.get('global', 'quotes', []);
         const lastQuote: number = this.client.provider.get('global', 'lastQuote', -1);
         if (quotes.length == 0)
@@ -69,7 +70,8 @@ export class AddQuoteCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandoMessage, args: {quote: string}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {quote: string}): Promise<commando.CommandoMessageResponse> {
+        if (!this.client.isProviderReady()) return message.say("Something terrible has happened, the settings provider is not initialized.");
         const quotes: string[] = this.client.provider.get('global', 'quotes', []);
         const newQuotes: string[] = JSON.parse(JSON.stringify(quotes));
         newQuotes.push(args.quote);
@@ -98,7 +100,8 @@ export class RmQuoteCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandoMessage, args: {quote: number}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {quote: number}): Promise<commando.CommandoMessageResponse> {
+        if (!this.client.isProviderReady()) return message.say("Something terrible has happened, the settings provider is not initialized.");
         const quotes: string[] = this.client.provider.get('global', 'quotes', []);
         const newQuotes: string[] = JSON.parse(JSON.stringify(quotes));
         if (args.quote < 0)

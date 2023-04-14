@@ -75,7 +75,7 @@ export default class ArmyCommand extends CCBotCommand {
         this.emote = emote;
     }
 
-    public async run(message: commando.CommandoMessage, args: {width: number; height: number; emote?: string}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {width: number; height: number; emote?: string}): Promise<commando.CommandoMessageResponse> {
         // Awkward, but solves the issue.
         if (args.height === 0)
             args.height = args.width;

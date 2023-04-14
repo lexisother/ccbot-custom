@@ -47,7 +47,7 @@ export default class CCBotEmoteRegistry {
     public readonly client: CCBot;
 
     // NOTE: This does *not* include per-guild settings or global settings.
-    public globalEmoteRegistry: Map<string, discord.GuildEmoji> = new Map();
+    public globalEmoteRegistry: Map<string, commando.CommandoGuildEmoji> = new Map();
     public globalConflicts = 0;
 
     public constructor(c: CCBot) {
@@ -64,7 +64,7 @@ export default class CCBotEmoteRegistry {
         const safetyList: string[] | undefined = this.client.provider.get('global', 'emotePath', []);
         const globalAllowList: string[] | undefined = this.client.provider.get('global', 'emotes-registry-allowList');
         const globalBlockList: string[] | undefined = this.client.provider.get('global', 'emotes-registry-blockList');
-        const localRegistryCollation: Map<string, discord.GuildEmoji[]> = new Map();
+        const localRegistryCollation: Map<string, commando.CommandoGuildEmoji[]> = new Map();
         for (const guild of this.client.guilds.cache.values()) {
             const allowList: string[] | undefined = this.client.provider.get(guild, 'emotes-registry-allowList');
             const blockList: string[] | undefined = this.client.provider.get(guild, 'emotes-registry-blockList');
@@ -73,20 +73,20 @@ export default class CCBotEmoteRegistry {
                     continue;
                 if ((globalAllowList && !globalAllowList.includes(emote.id)) || (allowList && !allowList.includes(emote.id)))
                     continue;
-                let emotes: discord.GuildEmoji[] | undefined = localRegistryCollation.get(emote.name);
+                let emotes: commando.CommandoGuildEmoji[] | undefined = localRegistryCollation.get(emote.name!);
                 if (!emotes) {
                     emotes = [];
-                    localRegistryCollation.set(emote.name, emotes);
+                    localRegistryCollation.set(emote.name!, emotes);
                 }
                 emotes.push(emote);
             }
         }
-        const localRegistry: Map<string, discord.GuildEmoji> = new Map();
+        const localRegistry: Map<string, commando.CommandoGuildEmoji> = new Map();
         // Start tallying conflicts
         this.globalConflicts = 0;
         for (const pair of localRegistryCollation) {
             // Conflict resolution
-            pair[1].sort((a: discord.GuildEmoji, b: discord.GuildEmoji): number => {
+            pair[1].sort((a: commando.CommandoGuildEmoji, b: commando.CommandoGuildEmoji): number => {
                 // Firstly, check position in safety list (if available)
                 // This code is written with safety margins to prevent crashing in case of user error.
                 if (safetyList && Array.isArray(safetyList)) {
@@ -132,6 +132,7 @@ export default class CCBotEmoteRegistry {
 
     /// Checks if an emote is overridden at guild or global level.
     public isOverride(guild: discord.Guild | null, name: string): 'guild' | 'global' | null {
+        if (!this.client.isProviderReady()) return null;
         // Local emote overrides
         if (guild) {
             const value = this.client.provider.get(guild, `emote-${name}`);
@@ -149,7 +150,9 @@ export default class CCBotEmoteRegistry {
     /// NOTE! Use userAwareGetEmote whenever possible.
     /// Emote grabbing should operate from the Writer's perspective,
     /// which means hug emote can be overridden by user, etc.
-    public getEmote(guild: discord.Guild | null, name: string): discord.GuildEmoji | discord.Emoji {
+    public getEmote(guild: discord.Guild | null, name: string): commando.CommandoGuildEmoji | discord.Emoji | null {
+        if (!this.client.isProviderReady()) return null;
+
         // Local emote overrides
         if (guild) {
             const value = this.client.provider.get(guild, `emote-${name}`);
@@ -195,6 +198,7 @@ export default class CCBotEmoteRegistry {
 
     /// Lists all emote refs.
     public getEmoteRefs(guild: discord.Guild | null): string[] {
+        if (!this.client.isProviderReady()) return [];
         const a: string[] = [];
         for (const k of this.globalEmoteRegistry.keys())
             a.push(k);

@@ -63,9 +63,15 @@ export interface GuildData {[setting: string]: unknown}
 export interface GuildIndex {[guildID: string]: GuildData}
 
 export interface SettingsStructure {
-    prefix: string | null;
-    [k: `cmd-${string}-${string}`]: boolean;
-    [k: `grp-${string}`]: boolean;
+    prefix?: string;
+    emotePath?: string[];
+    quotes: string[];
+    lastQuote: number;
+    'emotes-registry-allowList'?: string[];
+    'emotes-registry-blockList'?: string[];
+     [k: `cmd-${string}-${string}`]: boolean;
+     [k: `grp-${string}`]: boolean;
+     [k: `emote-${string}`]: number;
 }
 
 /// see https://github.com/CCDirectLink/CCModDB
