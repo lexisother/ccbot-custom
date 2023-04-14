@@ -58,6 +58,7 @@ export default class CCBotEmoteRegistry {
     /// This is where all the emotes go.
     /// In case of conflict, it uses 'trust prioritization' to try and avoid any incidents.
     public updateGlobalEmoteRegistry(): void {
+        if (!this.client.isProviderReady()) return;
         // NOTE! The type here isn't totally right, but the constructor-checking condition prevents any issues.
         // It is possible for some truly evil JSON to set constructor, but it can't be set to Array legitimately.
         const safetyList: string[] | undefined = this.client.provider.get('global', 'emotePath', []);
