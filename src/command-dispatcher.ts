@@ -15,8 +15,8 @@
 
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
-import {CCBot} from './ccbot';
-import {mentionRegex} from './utils';
+import { CCBot } from './ccbot';
+import { mentionRegex } from './utils';
 
 // NOTE: Here's how you make the TS compiler shut up about overriding and calling private methods:
 //
@@ -47,7 +47,7 @@ function initCCBotCommandoMessage(
     argString: string,
     patternMatches?: string[]
 ): commando.CommandoMessage {
-    const self = (message as commando.CommandoMessage).initCommand(command, argString as unknown as string[] | undefined, patternMatches);
+    const self = (message as commando.CommandoMessage)['initCommand'](command, argString, patternMatches ?? null);
 
     /// Prepares to edit a response.
     /// This modified version cleans up after whatever was happening before.
@@ -73,11 +73,11 @@ function initCCBotCommandoMessage(
                 if (!b.options.embed)
                     b.options.embed = undefined;
             } else {
-                b.options = {embed: undefined};
+                b.options = { embed: undefined };
             }
         }
         // eslint-disable-next-line dot-notation
-        return commando.CommandoMessage.prototype['editResponse'].call(this, reply, b);
+        return commando.CommandoMessage.prototype['editResponse'].call(this, reply, b) as unknown as commando.CommandoMessage | commando.CommandoMessage[];
     };
 
     return self;
@@ -103,9 +103,9 @@ export default class CCBotCommandDispatcher extends commando.CommandDispatcher {
         //  Get & remove the prefix
         let commandPrefix: string | undefined;
         if (message.guild) {
-            commandPrefix = (message.guild as commando.CommandoGuild).commandPrefix;
+            commandPrefix = (message.guild as commando.CommandoGuild).prefix;
         } else {
-            commandPrefix = this.client.commandPrefix;
+            commandPrefix = this.client.prefix;
         }
 
         // TODO: rewrite this to use an array of prefixes
