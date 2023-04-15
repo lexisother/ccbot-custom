@@ -17,6 +17,14 @@ import * as discord from 'discord.js';
 import { CCBot, CCBotEntity } from '../ccbot';
 import { EntityData } from '../entity-registry';
 import { TextBasedChannel, getGuildTextChannel, silence } from '../utils';
+import { RawUserData } from 'discord.js/typings/rawDataTypes';
+
+/// Makes constructor public so we can create a new User object in AuditorEntity.banListener()
+class DiscordUser extends discord.User {
+    public constructor(client: discord.Client<true>, data: RawUserData) {
+        super(client, data);
+    }
+}
 
 /// Implements greetings and automatic role assignment.
 class AuditorEntity extends CCBotEntity {
@@ -31,7 +39,7 @@ class AuditorEntity extends CCBotEntity {
             const channel = getGuildTextChannel(c, g, 'ban-log');
             if (!channel)
                 return;
-            let u = new discord.User(g.client, userRaw);
+            let u = new DiscordUser(g.client, userRaw);
             // Ok, well now we have all the details to make a post. Let's see if we can get additional info.
             silence((async (): Promise<void> => {
                 let reason = '';
