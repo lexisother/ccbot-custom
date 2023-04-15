@@ -44,7 +44,7 @@ const tooHighFailReasons = [
 export default class ArmyCommand extends CCBotCommand {
     public readonly emote: string | undefined;
     public constructor(client: CCBot, group: string, name: string, emote?: string) {
-        const args = [
+        const args: commando.ArgumentInfo[] = [
             {
                 key: 'width',
                 prompt: 'The breadth of the army? (A number.)',
