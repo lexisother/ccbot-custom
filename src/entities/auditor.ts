@@ -14,21 +14,20 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import * as discord from 'discord.js';
-import * as discordAPI from 'discord-api-types/v8';
-import {CCBot, CCBotEntity} from '../ccbot';
-import {EntityData} from '../entity-registry';
-import {TextBasedChannel, getGuildTextChannel, silence} from '../utils';
+import { CCBot, CCBotEntity } from '../ccbot';
+import { EntityData } from '../entity-registry';
+import { TextBasedChannel, getGuildTextChannel, silence } from '../utils';
 
 /// Implements greetings and automatic role assignment.
 class AuditorEntity extends CCBotEntity {
-    private banListener: (g: discord.Guild, u: discordAPI.APIUser, arm: boolean) => void;
+    private banListener: (g: discord.Guild, u: discord.APIUser, arm: boolean) => void;
     private updateListener: (c: TextBasedChannel, id: string) => void;
     private deletesListener: (c: TextBasedChannel, id: string[]) => void;
 
     public constructor(c: CCBot, data: EntityData) {
         super(c, 'auditor-manager', data);
 
-        this.banListener = (g: discord.Guild, userRaw: discordAPI.APIUser, added: boolean): void => {
+        this.banListener = (g: discord.Guild, userRaw: discord.APIUser, added: boolean): void => {
             const channel = getGuildTextChannel(c, g, 'ban-log');
             if (!channel)
                 return;
@@ -37,24 +36,20 @@ class AuditorEntity extends CCBotEntity {
             silence((async (): Promise<void> => {
                 let reason = '';
                 if (added) {
-                    try {
-                        const info = await g.fetchBan(u.id);
-                        reason = discord.Util.escapeMarkdown(info.reason || '');
-                    } catch (_e) {
-                        // Deilberately left blank
-                    }
+                    const info = await g.bans.fetch(u.id).catch(() => null);
+                    reason = discord.escapeMarkdown(info?.reason || '');
                 }
                 await channel.send({
-                    embed: {
+                    embeds: [{
                         title: `Ban ${added ? 'Added' : 'Removed'}`,
                         description: reason,
-                        timestamp: new Date(),
+                        timestamp: Date.now().toString(),
                         footer: {
                             text: `${u.username}#${u.discriminator} (${u.id})`,
                             // As a string to get ESLint to ignore it
                             'icon_url': u.displayAvatarURL()
                         }
-                    }
+                    }]
                 });
             })());
         };
@@ -82,10 +77,10 @@ class AuditorEntity extends CCBotEntity {
         // Do not listen to messages in the channel we're using to send reports about listening to messages.
         if (targetChannel == frm)
             return;
-        const resultingEmbed: discord.MessageEmbedOptions = {
+        const resultingEmbed: discord.APIEmbed = {
             title: (id.length != 1) ? (deletion ? 'Bulk Delete' : 'Bulk Update') : (deletion ? 'Message Deleted' : 'Message Updated'),
             color: deletion ? 0xFF0000 : 0xFFFF00,
-            timestamp: new Date()
+            timestamp: Date.now().toString()
         };
         let weNeedToCheckMessageZero = false;
         const showName = `#${frm.name || frm.id}`;
@@ -115,7 +110,7 @@ class AuditorEntity extends CCBotEntity {
         }
         silence((async (): Promise<void> => {
             try {
-                await targetChannel.send('', {embed: resultingEmbed});
+                await targetChannel.send({ embeds: [resultingEmbed] });
             } catch (e) {
                 try {
                     await targetChannel.send(`Unable to state details on ${resultingEmbed.title}\n${e}`);
@@ -140,9 +135,9 @@ class AuditorEntity extends CCBotEntity {
 
     private summarizeMessage(message: discord.Message): string {
         let summary = `\nAuthor: ${message.author.username}#${message.author.discriminator} (${message.author.id})`;
-        summary += `\nContent:\n\`\`\`\n${discord.Util.cleanCodeBlockContent(message.content)}\n\`\`\``;
+        summary += `\nContent:\n\`\`\`\n${discord.cleanCodeBlockContent(message.content)}\n\`\`\``;
         for (const attachment of message.attachments.values())
-            summary += `\nHad attachment: ${discord.Util.escapeMarkdown(attachment.name || 'unknown')} \`${discord.Util.escapeInlineCode(attachment.url)}\``;
+            summary += `\nHad attachment: ${discord.escapeMarkdown(attachment.name || 'unknown')} \`${discord.escapeInlineCode(attachment.url)}\``;
         // Old-fashioned, but ESLint won't let me hear the end of it otherwise.
         for (let i = 0; i < message.embeds.length; i++)
             summary += '\nHad embed';

@@ -53,7 +53,7 @@ export class InspireCommand extends CCBotCommand {
 /// Adds a quote.
 export class AddQuoteCommand extends CCBotCommand {
     public constructor(client: CCBot) {
-        const opt = {
+        const opt: commando.CommandInfo = {
             name: '-util add-quote',
             description: 'adds a quote',
             group: 'util',
@@ -83,7 +83,7 @@ export class AddQuoteCommand extends CCBotCommand {
 /// Removes a quote.
 export class RmQuoteCommand extends CCBotCommand {
     public constructor(client: CCBot) {
-        const opt = {
+        const opt: commando.CommandInfo = {
             name: '-util rm-quote',
             description: 'removes a quote',
             group: 'util',

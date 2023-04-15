@@ -33,7 +33,7 @@ export default class InviteCommand extends CCBotCommand {
         const {owners} = this.client;
 		const ownerList = owners ? owners.map((usr, i) => {
 			const or = i === owners.length - 1 && owners.length > 1 ? 'or ' : '';
-			return `${or}${discord.Util.escapeMarkdown(usr.username)}#${usr.discriminator}`;
+			return `${or}${discord.escapeMarkdown(usr.username)}#${usr.discriminator}`;
 		}).join(owners.length > 2 ? ', ' : ' ') : '';
         return await message.say(`Please contact ${ownerList || 'the bot owner'} and tell that you would like to add the bot to your server.`);
     }

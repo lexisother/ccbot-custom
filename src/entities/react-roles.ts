@@ -53,10 +53,10 @@ class ReactRolesEntity extends CCBotEntity {
 
     public emoteReactionTouched(target: discord.Emoji, user: discord.User, add: boolean): void {
         super.emoteReactionTouched(target, user, add);
-        const member = this.guild.member(user);
+        const member = this.guild.members.resolve(user);
         if (!member)
             return;
-        const reaction = this.reactions[target.id || target.name];
+        const reaction = this.reactions[target.id ?? target.name ?? ''];
         if (reaction)
             runRoleCommand(this.client, member, reaction, add);
     }

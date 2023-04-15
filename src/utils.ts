@@ -26,7 +26,7 @@ import './ccbot';
 export const mdEsc = discord.escapeMarkdown;
 
 /// Returns if a given channel is appropriate for NSFW information.
-export function nsfw(channel: discord.Channel): boolean {
+export function nsfw(channel: discord.Channel): channel is (discord.TextChannel & { nsfw: true }) | discord.DMChannel {
     if (channel instanceof discord.TextChannel) {
         if (channel.guild.verified)
             return false;
@@ -75,7 +75,7 @@ export function emoteSafe(emote: discord.Emoji, channel: discord.Channel | null,
 }
 
 export type GuildTextBasedChannel = discord.TextChannel | discord.NewsChannel;
-export function isGuildChannelTextBased(channel: discord.GuildChannel): channel is GuildTextBasedChannel {
+export function isGuildChannelTextBased(channel: discord.GuildBasedChannel): channel is GuildTextBasedChannel {
     return channel instanceof discord.TextChannel || channel instanceof discord.NewsChannel;
 }
 

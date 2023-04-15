@@ -19,15 +19,14 @@ import CCBotEmoteRegistry from './emote-registry';
 import DynamicDataManager from './dynamic-data';
 import { Entity, EntityData, EntityRegistry } from './entity-registry';
 import { SaneSettingProvider } from "./setting-provider"
-import * as discordAPI from 'discord-api-types/v10';
 
 declare module 'discord.js' {
     // THE FOLLOWING EVENTS ARE EXTENSIONS:
     interface ClientEvents {
-        raw: [discordAPI.GatewayDispatchPayload];
+        raw: [discord.GatewayDispatchPayload];
         ccbotMessageDeletes: [commando.CommandoGuildTextBasedChannel, discord.Snowflake[]];
         ccbotMessageUpdateUnchecked: [commando.CommandoTextBasedChannel, discord.Snowflake];
-        ccbotBanAddRemove: [commando.CommandoGuild, discordAPI.APIUser, boolean]
+        ccbotBanAddRemove: [commando.CommandoGuild, discord.APIUser, boolean]
     }
 
 }
@@ -54,7 +53,7 @@ export abstract class CCBot<Ready extends boolean = boolean> extends commando.Co
             this.entities.start();
             this.emoteRegistry.updateGlobalEmoteRegistry();
         });
-        this.on('raw', (event: discordAPI.GatewayDispatchPayload): void => {
+        this.on('raw', (event: discord.GatewayDispatchPayload): void => {
             this.handleRawEvent(event);
         });
         const callbackUpdateGER = (): void => {
@@ -85,7 +84,7 @@ export abstract class CCBot<Ready extends boolean = boolean> extends commando.Co
     /// You really, really shouldn't have to add something here.
     /// As far as I know the only kinds of events that need this kind of thing are reaction events,
     /// and I have already solved those... well enough.
-    private handleRawEvent(event: discordAPI.GatewayDispatchPayload): void {
+    private handleRawEvent(event: discord.GatewayDispatchPayload): void {
         if (event.t == 'MESSAGE_REACTION_ADD' || event.t == 'MESSAGE_REACTION_REMOVE') {
             // Ew ew ew WHY IS THIS NECESSARY TO MAKE REACTIONS WORK
             // https://discordjs.guide/popular-topics/reactions.html#listening-for-reactions-on-old-messages
@@ -96,7 +95,7 @@ export abstract class CCBot<Ready extends boolean = boolean> extends commando.Co
             const entity = this.entities.getEntity(`message-${event.d.message_id}`);
             if (!entity)
                 return;
-            const emojiDetails: discordAPI.APIEmoji = event.d.emoji;
+            const emojiDetails: discord.APIEmoji = event.d.emoji;
             let emoji: discord.GuildEmoji | discord.Emoji;
             if (emojiDetails.id) {
                 const emojiX = this.emojis.cache.get(emojiDetails.id);

@@ -63,7 +63,7 @@ export class PurgeDatabaseEntity extends CCBotEntity {
                 if (entity instanceof PurgeDatabaseChannelEntity) {
                     const array = entity.messages;
                     let changed = false;
-                    while ((array.length > 0) && (discord.SnowflakeUtil.deconstruct(array[0]).date.getTime() < deleteBefore)) {
+                    while ((array.length > 0) && (discord.SnowflakeUtil.deconstruct(array[0]).timestamp < deleteBefore)) {
                         array.shift();
                         changed = true;
                     }
@@ -93,12 +93,12 @@ export class PurgeDatabaseEntity extends CCBotEntity {
                 }
             }
         };
-        this.client.on('message', this.messageCallback);
+        this.client.on('messageCreate', this.messageCallback);
     }
 
     public onKill(transferOwnership: boolean): void {
         super.onKill(transferOwnership);
-        this.client.removeListener('message', this.messageCallback);
+        this.client.removeListener('messageCreate', this.messageCallback);
     }
 
     public toSaveData(): PurgeDatabaseEntityData {

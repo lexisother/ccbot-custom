@@ -35,7 +35,7 @@ export default class HelpCommand extends CCBotCommand {
             ''
         ];
 
-        if (this.groupID == 'general') {
+        if (this.groupId == 'general') {
             lines.push('To send a command, prefix the bot prefix (or a ping to the bot).');
             lines.push('The bot prefix/ping isn\'t necessary in DMs.');
             lines.push('');
@@ -44,7 +44,7 @@ export default class HelpCommand extends CCBotCommand {
         for (const cmd of this.group.commands.values()) {
             const fmt = cmd.format ? ` ${cmd.format}` : '';
             if (cmd.description != 'UNDOCUMENTED') {
-                if (this.groupID === 'general') {
+                if (this.groupId === 'general') {
                     lines.push(`** ${cmd.memberName}${fmt} **: ${cmd.description}`);
                 } else {
                     lines.push(`** -${this.group.id} ${cmd.memberName}${fmt} **: ${cmd.description}`);
@@ -54,7 +54,7 @@ export default class HelpCommand extends CCBotCommand {
         }
 
         // Append some details on other groups
-        const allGroups = this.client.registry.groups.keyArray();
+        const allGroups = Array.from(this.client.registry.groups.keys());
         lines.push('');
         lines.push(`Also see: \`-${allGroups.join(' help`, `-')} help\``);
 
@@ -81,7 +81,7 @@ export default class HelpCommand extends CCBotCommand {
         if (message.channel instanceof discord.DMChannel) {
             const array: discord.Message[] = [];
             for (const str of text)
-                array.push(await message.say(str));
+                array.push(await message.say(str) as discord.Message);
             return array;
         } else {
             try {

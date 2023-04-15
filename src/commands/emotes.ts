@@ -55,7 +55,7 @@ export class ListEmotesCommand extends CCBotCommand {
 
         for (const eref of refs) {
             const emote = this.client.emoteRegistry.getEmote(message.guild, eref);
-            if (!emoteSafe(emote, message.channel, this.sfw))
+            if (!emote || !emoteSafe(emote, message.channel, this.sfw))
                 continue;
             let details = '**Native:**';
             if (args.search == 'overrides') {
@@ -88,7 +88,7 @@ export class ListEmotesCommand extends CCBotCommand {
 /// A command to say a set of emotes.
 export class EmoteCommand extends CCBotCommand {
     public constructor(client: CCBot) {
-        const opt = {
+        const opt: commando.CommandInfo = {
             name: '-general emote',
             description: 'Writes out a series of emotes. You can use two special characters for aligning multi-emote pictures: put ` - ` between two emotes to remove the space between them, use ` \\ ` to add a newline.',
             group: 'general',
@@ -129,7 +129,7 @@ export class EmoteCommand extends CCBotCommand {
                 }
                 default: {
                     const emote = await userAwareGetEmote(this.client, message.author, message.guild || null, emoteArg);
-                    if (!emoteSafe(emote, message.channel))
+                    if (!emote || !emoteSafe(emote, message.channel))
                         continue;
                     if (text.length > 0)
                         text += separator;
@@ -172,9 +172,9 @@ export class ReactCommand extends CCBotCommand {
         let start = 0;
         if (
             (message.type === discord.MessageType.Default || message.type === discord.MessageType.Reply) && message.reference != null &&
-            message.reference.guildId === message.guild.id && message.reference.messageId != null
+            message.reference.guildId === message.guild?.id && message.reference.messageId != null
         ) {
-            let referencedChannel = message.guild.channels.cache.get(message.reference.channelId);
+            let referencedChannel = message.guild?.channels.cache.get(message.reference.channelId);
             if (referencedChannel == null || !isGuildChannelTextBased(referencedChannel)) {
                 return await message.say('That\'s surprising. How did you manage to reply to a message from an invalid channel?');
             }
@@ -210,9 +210,9 @@ export class ReactCommand extends CCBotCommand {
             return await message.say('Lea bye.');
         for (let i = start; i < args.emotes.length; i++) {
             const emote = await userAwareGetEmote(this.client, message.author, message.guild || null, args.emotes[i]);
-            if (!emoteSafe(emote, targetChannel))
+            if (!emote || !emoteSafe(emote, targetChannel))
                 continue;
-            await targetMessage.react(emote instanceof discord.BaseGuildEmoji ? emote : emote.name);
+            await targetMessage.react(emote instanceof discord.GuildEmoji ? emote : emote.name!);
         }
         return [];
     }

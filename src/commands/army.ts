@@ -80,8 +80,8 @@ export default class ArmyCommand extends CCBotCommand {
         if (args.height === 0)
             args.height = args.width;
 
-        const emoteUse = await userAwareGetEmote(this.client, message.author, message.guild || null, (this.emote || args.emote)!);
-        if (!emoteSafe(emoteUse, message.channel))
+        const emoteUse = await userAwareGetEmote(this.client, message.author, message.guild, (this.emote || args.emote)!);
+        if (!emoteUse || !emoteSafe(emoteUse, message.channel))
             return message.say('they appear to have been transformed into something unsuitable for this channel');
 
         // Initial safety checks

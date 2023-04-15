@@ -93,16 +93,16 @@ export default class JSONCommand extends CCBotCommand {
             formatText = await runFormat(this.command.format || '', vm);
             // MO/JSON-supplied Embed
             if (this.command.embed)
-                vmContext.embed = await copyAndFormat(vm, this.command.embed) as discord.MessageEmbedOptions;
+                vmContext.embed = await copyAndFormat(vm, this.command.embed) as discord.APIEmbed;
         }
 
         // Message Options
-        const opts: discord.MessageOptions & { split: false } = { split: false };
+        const opts: discord.MessageCreateOptions & { split: false } = { split: false };
         let hasMeta = false;
         {
             // Embed
             if (vmContext.embed) {
-                opts.embed = vmContext.embed;
+                opts.embeds = [vmContext.embed];
                 hasMeta = true;
             }
         }
@@ -113,7 +113,7 @@ export default class JSONCommand extends CCBotCommand {
             if (this.command.commandReactions) {
                 for (const react of this.command.commandReactions) {
                     const emote = await userAwareGetEmote(this.client, message.author, message.guild || null, react);
-                    await message.react(emote instanceof discord.BaseGuildEmoji ? emote : emote.name);
+                    await message.react(emote instanceof discord.GuildEmoji ? emote : emote!.name!);
                 }
             }
         }

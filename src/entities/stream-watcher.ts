@@ -78,12 +78,12 @@ class StreamWatcherEntity extends WatcherEntity {
                 }
             }
         }
-        await this.message.edit('', {
-            embed: {
+        await this.message.edit({
+            embeds: [{
                 title: 'CrossCode Streams',
                 fields: streams,
-                timestamp: new Date()
-            }
+                timestamp: Date.now().toString()
+            }]
         });
     }
 

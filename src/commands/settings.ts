@@ -18,6 +18,7 @@ import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
 import {doneResponse, localAdminCheck} from '../utils';
 import {getUserDatablock} from '../entities/user-datablock';
+import { SaneSettingProvider } from '../setting-provider';
 
 // Important (i.e. non-obvious) limits
 const limitLocalCommand = 2000;
@@ -41,7 +42,7 @@ export enum SettingsContext {
 
 // <editor-fold desc="Backend" defaultstate=collapsed>
 // Returns null on success.
-async function runLocalSettingTransaction(provider: commando.SettingProvider, context: discord.Guild, name: string, value: undefined | string | undefined[]): Promise<string | null> {
+async function runLocalSettingTransaction(provider: SaneSettingProvider, context: discord.Guild, name: string, value: undefined | string | undefined[]): Promise<string | null> {
     let maxLength = 0;
     let doneCallback = async (): Promise<void> => {};
     const startsWithRG = name.startsWith('roles-group-');
@@ -114,7 +115,7 @@ async function runLocalSettingTransaction(provider: commando.SettingProvider, co
             // Commando. I WASN'T WRONG!
             // TODO: Maybe the special case for the prefix can be moved into
             // the SaneSettingProvider.
-            (context as commando.CommandoGuild).commandPrefix = value as string;
+            (context as commando.CommandoGuild).prefix = value as string;
         } else {
             await provider.set(context, name, value);
         }
@@ -173,7 +174,7 @@ export class SettingsCommand extends CCBotCommand {
     public readonly context: SettingsContext;
     public constructor(client: CCBot, op: SettingsOperation, target: SettingsContext) {
         const localName = `${SettingsOperation[op].toLowerCase()}-${SettingsContext[target].toLowerCase()}`;
-        const opt = {
+        const opt: commando.CommandInfo<boolean, commando.ArgumentInfo[]> = {
             name: `-util ${localName}`,
             description: `${SettingsOperation[op]} ${SettingsContext[target].toLowerCase()} setting.`,
             group: 'util',
@@ -187,7 +188,7 @@ export class SettingsCommand extends CCBotCommand {
             ]
         };
         if (op == SettingsOperation.Set) {
-            opt.args.push({
+            opt.args?.push({
                 key: 'value',
                 prompt: 'What value would you like today? (JSON)',
                 type: 'string'
@@ -284,6 +285,6 @@ export class ShowUserSettingsCommand extends CCBotCommand {
 
     public async run(message: commando.CommandoMessage): Promise<commando.CommandoMessageResponse> {
         const res = (await getUserDatablock(this.client, message.author)).content;
-        return message.say(`\`\`\`json\n${discord.Util.cleanCodeBlockContent(res)}\n\`\`\``);
+        return message.say(`\`\`\`json\n${discord.cleanCodeBlockContent(res)}\n\`\`\``);
     }
 }

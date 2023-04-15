@@ -221,9 +221,9 @@ export default class CCBotEmoteRegistry {
                 data.list.push({
                     ref,
                     id: emote.id,
-                    name: emote.name,
+                    name: emote.name!,
                     requires_colons: emote.requiresColons || false,
-                    animated: emote.animated,
+                    animated: !!emote.animated,
                     url: emote.url,
                     safe: emoteSafe(emote, null, true),
                     guild_id: emote.guild.id,

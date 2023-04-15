@@ -70,6 +70,8 @@ export interface SettingsStructure {
     lastQuote: number;
     'emotes-registry-allowList'?: string[];
     'emotes-registry-blockList'?: string[];
+    'headerless-say'?: boolean;
+     [k: `roles-${string}`]: string[];
      [k: `cmd-${string}-${string}`]: boolean;
      [k: `grp-${string}`]: boolean;
      [k: `emote-${string}`]: number;

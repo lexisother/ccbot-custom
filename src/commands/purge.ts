@@ -22,7 +22,7 @@ import {PurgeDatabaseChannelEntity} from '../entities/purge-database';
 /// Purges the bot's messages.
 export default class PurgeCommand extends CCBotCommand {
     public constructor(client: CCBot) {
-        const opt = {
+        const opt: commando.CommandInfo = {
             name: 'purge',
             description: 'Deletes messages from the bot. Defaults to 1 minute.',
             group: 'general',
@@ -47,17 +47,17 @@ export default class PurgeCommand extends CCBotCommand {
         if (args.seconds <= 1)
             return await message.say('Too short to be practical.');
 
-        if (!localRPCheck(message, ['VIEW_CHANNEL', 'MANAGE_MESSAGES'], 'purgers')) {
+        if (!localRPCheck(message, ['ViewChannel', 'ManageMessages'], 'purgers')) {
             return await message.say('You aren\'t authorized to do that.\nYou need READ\\_MESSAGES & MANAGE\\_MESSAGES, or you need to be in the `purgers` role group.');
         } else {
-            if (message.channel instanceof discord.DMChannel)
+            if (message.channel.isDMBased())
                 return await message.say('That can\'t be done here. (DM channel?)');
             // Nuke it. I hope you intended this...
             const collated: string[] = [];
             const targetTimestamp = message.createdAt.getTime() - (args.seconds * 1000);
             for (let i = database.messages.length - 1; i >= 0; i--) {
                 const msgID = database.messages[i];
-                if (discord.SnowflakeUtil.deconstruct(msgID).date.getTime() >= targetTimestamp) {
+                if (discord.SnowflakeUtil.deconstruct(msgID).timestamp >= targetTimestamp) {
                     this.client.entities.killEntity(`message-${msgID}`, true);
                     collated.push(msgID);
                     if (collated.length >= 200)
