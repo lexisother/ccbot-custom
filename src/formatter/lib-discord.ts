@@ -16,7 +16,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {VM, Value, asString, falseValue, wrapFunc} from './core';
-import {TextBasedChannel, emoteSafe, findMemberByRef, isChannelTextBased} from '../utils';
+import {emoteSafe, findMemberByRef, isChannelTextBased} from '../utils';
 import {CCBot} from '../ccbot';
 import {userAwareGetEmote} from '../entities/user-datablock';
 
@@ -25,7 +25,7 @@ const vmFindUserTime = 128;
 
 export interface VMContext {
     client: CCBot;
-    channel: TextBasedChannel;
+    channel: discord.TextBasedChannel;
     // The person whose say- code we are running.
     // Null means it comes from guild settings at some level,
     //  which means it has as much permission as the bot within the guild.
@@ -50,7 +50,7 @@ function guildOfChannel(channel: discord.Channel): discord.Guild | undefined {
 /// @param where The channel this is being sent to.
 /// @param source The channel the message is being sourced from.
 /// @param user A security principal like writer; null is guild-level access (@'where')
-function userHasReadAccessToChannel(where: TextBasedChannel, source: TextBasedChannel, user: discord.User | null): boolean {
+function userHasReadAccessToChannel(where: discord.TextBasedChannel, source: discord.TextBasedChannel, user: discord.User | null): boolean {
     const quoteGuild = guildOfChannel(source);
     if (!user) {
         // Guild access
