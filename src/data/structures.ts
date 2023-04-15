@@ -63,7 +63,8 @@ export interface GuildData {[setting: string]: unknown}
 export interface GuildIndex {[guildID: string]: GuildData}
 
 export interface SettingsStructure {
-    prefix?: string;
+    prefix?: string | null;
+    emotes?: string[];
     emotePath?: string[];
     quotes: string[];
     lastQuote: number;
