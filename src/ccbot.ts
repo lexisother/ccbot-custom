@@ -19,13 +19,14 @@ import CCBotEmoteRegistry from './emote-registry';
 import DynamicDataManager from './dynamic-data';
 import { Entity, EntityData, EntityRegistry } from './entity-registry';
 import { SaneSettingProvider } from "./setting-provider"
+import * as utils from './utils';
 
 declare module 'discord.js' {
     // THE FOLLOWING EVENTS ARE EXTENSIONS:
     interface ClientEvents {
         raw: [discord.GatewayDispatchPayload];
-        ccbotMessageDeletes: [commando.CommandoGuildTextBasedChannel, discord.Snowflake[]];
-        ccbotMessageUpdateUnchecked: [commando.CommandoTextBasedChannel, discord.Snowflake];
+        ccbotMessageDeletes: [utils.TextBasedChannel, discord.Snowflake[]];
+        ccbotMessageUpdateUnchecked: [utils.TextBasedChannel, discord.Snowflake];
         ccbotBanAddRemove: [commando.CommandoGuild, discord.APIUser, boolean]
     }
 
@@ -114,11 +115,11 @@ export abstract class CCBot<Ready extends boolean = boolean> extends commando.Co
             if (!channel)
                 return;
             if (event.t == 'MESSAGE_UPDATE') {
-                this.emit('ccbotMessageUpdateUnchecked', channel as commando.CommandoTextBasedChannel, event.d.id);
+                this.emit('ccbotMessageUpdateUnchecked', channel as utils.TextBasedChannel, event.d.id);
             } else if (event.t == 'MESSAGE_DELETE') {
-                this.emit('ccbotMessageDeletes', channel as commando.CommandoGuildTextBasedChannel, [event.d.id]);
+                this.emit('ccbotMessageDeletes', channel as utils.TextBasedChannel, [event.d.id]);
             } else if (event.t == 'MESSAGE_DELETE_BULK') {
-                this.emit('ccbotMessageDeletes', channel as commando.CommandoGuildTextBasedChannel, event.d.ids);
+                this.emit('ccbotMessageDeletes', channel as utils.TextBasedChannel, event.d.ids);
             }
         } else if ((event.t == 'GUILD_BAN_ADD') || (event.t == 'GUILD_BAN_REMOVE')) {
             const guild = this.guilds.cache.get(event.d.guild_id);
