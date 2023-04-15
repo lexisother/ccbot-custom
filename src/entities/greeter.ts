@@ -42,7 +42,7 @@ class GreeterEntity extends CCBotEntity {
     public constructor(c: CCBot, data: EntityData) {
         super(c, 'greeter-manager', data);
         this.memberListener = (m: discord.GuildMember): void => {
-            if (this.killed)
+            if (this.killed || !c.isProviderReady())
                 return;
             const channel = getGuildTextChannel(c, m.guild, 'greet');
             if (channel) {
@@ -69,7 +69,7 @@ class GreeterEntity extends CCBotEntity {
                 silence(m.roles.remove(rmRoles));
         };
         this.memberRemoveListener = async (m: discord.GuildMember | discord.PartialGuildMember): Promise<void> => {
-            if (this.killed)
+            if (this.killed || !c.isProviderReady())
                 return;
             const channel = getGuildTextChannel(c, m.guild, 'greet');
             if (channel) {
