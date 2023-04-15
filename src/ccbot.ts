@@ -39,6 +39,7 @@ export abstract class CCBot<Ready extends boolean = boolean> extends commando.Co
     public dynamicData: DynamicDataManager;
     public entities: EntityRegistry<CCBot, CCBotEntity>;
     public emoteRegistry: CCBotEmoteRegistry;
+    declare public provider: discord.If<Ready, SaneSettingProvider>;
 
     protected constructor(co: commando.CommandoClientOptions) {
         // TODO: get rid of this by always fetching guild members explicitly when needed???

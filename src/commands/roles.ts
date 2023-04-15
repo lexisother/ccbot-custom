@@ -48,7 +48,7 @@ function getWhitelist(client: CCBot, guild: discord.Guild): string[] {
 /// There's a lot of common stuff this combines into one function.
 /// Notably, this assumes that whoever causes this to be run, they are authorized to do so.
 /// If this may not be the case, add the checks in the calling function; this function focuses on the logic of the effects.
-export async function runRoleCommand(client: commando.CommandoClient, member: discord.GuildMember, roles: string[], add: boolean): Promise<string> {
+export async function runRoleCommand(client: CCBot<true>, member: discord.GuildMember, roles: string[], add: boolean): Promise<string> {
 
     const userRoles = Array.from(member.roles.cache.keys());
     const request = convertRoles(client, member.guild, roles, false);
@@ -81,7 +81,7 @@ export async function runRoleCommand(client: commando.CommandoClient, member: di
 
     // -- Involvement processing --
 
-    const involvedGroups = getInvolvement(client as CCBot, member.guild, add ? 'exclusive' : 'inclusive', primaryRoles);
+    const involvedGroups = getInvolvement(client, member.guild, add ? 'exclusive' : 'inclusive', primaryRoles);
     for (const groupName of involvedGroups) {
         const groupContent: string[] = convertRoleGroup(client, member.guild, groupName);
         if (add) {
@@ -125,7 +125,7 @@ export async function runRoleCommand(client: commando.CommandoClient, member: di
 async function genericARRunner(message: commando.CommandoMessage, args: {roles: string[]}, add: boolean): Promise<commando.CommandoMessageResponse> {
     if (!message.member)
         return message.say('There aren\'t roles in a DM channel.');
-    return message.say(await runRoleCommand(message.client, message.member, args.roles, add));
+    return message.say(await runRoleCommand(message.client as CCBot<true>, message.member, args.roles, add));
 }
 
 /// A command for someone to add roles to themselves using the bot.

@@ -21,6 +21,7 @@ import * as url from 'url';
 
 // dmitmel: Needed for running tests because of Commando extensions
 import './ccbot';
+import { CCBot } from './ccbot';
 
 /// Alias that's simpler to access
 export const mdEsc = discord.escapeMarkdown;
@@ -38,7 +39,7 @@ export function nsfw(channel: discord.Channel): channel is (discord.TextChannel 
 }
 
 /// Returns if a given guild is considered a liability SFW-wise.
-export function nsfwGuild(client: commando.CommandoClient, guild: discord.Guild): boolean {
+export function nsfwGuild(client: CCBot, guild: discord.Guild): boolean {
     if (!client.isProviderReady()) return false;
     if (client.provider.get('global', `nsfw-${guild.id}`, false))
         return true;
@@ -49,7 +50,7 @@ export function nsfwGuild(client: commando.CommandoClient, guild: discord.Guild)
 /// Ensures an emote is safe to use. If 'sfw' is set to true, ignores channel NSFWness.
 export function emoteSafe(emote: discord.Emoji, channel: discord.Channel | null, sfw?: boolean): boolean {
     // otherwise, let's reason this out:
-    const client = emote.client as unknown as commando.CommandoClient;
+    const client = emote.client as CCBot;
     if (!client.isProviderReady()) return false;
     sfw = sfw || false;
     // if channel is NSFW, it's always safe to use it here
@@ -84,7 +85,7 @@ export function isChannelTextBased(channel: discord.Channel): channel is TextBas
     return channel instanceof discord.DMChannel || isGuildChannelTextBased(channel as discord.GuildChannel);
 }
 
-export function getGuildTextChannel(client: commando.CommandoClient, guild: discord.Guild, id: string): GuildTextBasedChannel | undefined {
+export function getGuildTextChannel(client: CCBot, guild: discord.Guild, id: string): GuildTextBasedChannel | undefined {
     if (!client.isProviderReady()) return;
     const guildChannel = client.provider.get(guild, `channel-${id}`, '');
     const result = guild.channels.cache.find((c: discord.GuildBasedChannel) => {
