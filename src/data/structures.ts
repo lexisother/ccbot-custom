@@ -66,15 +66,23 @@ export interface SettingsStructure {
     prefix?: string | null;
     emotes?: string[];
     emotePath?: string[];
+    farewell?: string;
+    greeting?: string;
     quotes: string[];
     lastQuote: number;
+    nsfw?: boolean;
+    'dm-greeting'?: string;
     'emotes-registry-allowList'?: string[];
     'emotes-registry-blockList'?: string[];
+    'emotes-sfw'?: string[];
     'headerless-say'?: boolean;
-     [k: `roles-${string}`]: string[];
-     [k: `cmd-${string}-${string}`]: boolean;
-     [k: `grp-${string}`]: boolean;
-     [k: `emote-${string}`]: number;
+    'optin-roles'?: 'yes' | 'no' | 'both';
+    [k: `channel-${string}`]: string;
+    [k: `cmd-${string}-${string}`]: boolean;
+    [k: `emote-${string}`]: number;
+    [k: `grp-${string}`]: boolean;
+    [k: `nsfw-${string}`]: boolean;
+    [k: `roles-${string}`]: string[];
 }
 
 /// see https://github.com/CCDirectLink/CCModDB

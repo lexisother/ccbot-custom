@@ -19,6 +19,7 @@ import {CCBot, CCBotCommand} from '../ccbot';
 import {doneResponse, localAdminCheck} from '../utils';
 import {getUserDatablock} from '../entities/user-datablock';
 import { SaneSettingProvider } from '../setting-provider';
+import { SettingsStructure } from '../data/structures';
 
 // Important (i.e. non-obvious) limits
 const limitLocalCommand = 2000;
@@ -42,7 +43,7 @@ export enum SettingsContext {
 
 // <editor-fold desc="Backend" defaultstate=collapsed>
 // Returns null on success.
-async function runLocalSettingTransaction(provider: SaneSettingProvider, context: discord.Guild, name: string, value: undefined | string | undefined[]): Promise<string | null> {
+async function runLocalSettingTransaction(provider: SaneSettingProvider, context: discord.Guild, name: keyof SettingsStructure, value: undefined | string | undefined[]): Promise<string | null> {
     let maxLength = 0;
     let doneCallback = async (): Promise<void> => {};
     const startsWithRG = name.startsWith('roles-group-');
@@ -117,7 +118,7 @@ async function runLocalSettingTransaction(provider: SaneSettingProvider, context
             // the SaneSettingProvider.
             (context as commando.CommandoGuild).prefix = value as string;
         } else {
-            await provider.set(context, name, value);
+            await provider.set(context, name, value as string);
         }
     }
     await doneCallback();
@@ -199,7 +200,7 @@ export class SettingsCommand extends CCBotCommand {
         this.context = target;
     }
 
-    public async run(message: commando.CommandoMessage, args: {key: string; value: string}): Promise<commando.CommandoMessageResponse> {
+    public async run(message: commando.CommandoMessage, args: {key: keyof SettingsStructure; value: string}): Promise<commando.CommandoMessageResponse> {
         let instance = '';
         if (this.context === SettingsContext.Global) {
             instance = 'global';
@@ -223,7 +224,7 @@ export class SettingsCommand extends CCBotCommand {
                 // This relies on instance === 'global' for Global context.
                 // Essentially, if not for runLocalSettingTransaction,
                 //  both local & global contexts would use the same code
-                value = this.client.provider.get(instance, args.key);
+                value = this.client.provider!.get(instance, args.key);
             } else if (this.context == SettingsContext.User) {
                 const dbl = await getUserDatablock(this.client, instance);
                 value = dbl.get()[args.key];
@@ -245,16 +246,16 @@ export class SettingsCommand extends CCBotCommand {
             }
             if (this.context == SettingsContext.Global) {
                 if (value === undefined) {
-                    await this.client.provider.remove('global', args.key);
+                    await this.client.provider!.remove('global', args.key);
                 } else {
-                    await this.client.provider.set('global', args.key, value);
+                    await this.client.provider!.set('global', args.key, value);
                 }
                 return message.say(doneResponse());
             } else if (this.context == SettingsContext.Local) {
                 const guild = this.client.guilds.cache.get(instance);
                 if (!guild)
                     return message.say('How\'d you get here, then?');
-                return message.say((await runLocalSettingTransaction(this.client.provider, guild, args.key, value)) || doneResponse());
+                return message.say((await runLocalSettingTransaction(this.client.provider!, guild, args.key, value)) || doneResponse());
             } else if (this.context == SettingsContext.User) {
                 const dbl = await getUserDatablock(this.client, instance);
                 const db = dbl.get();
