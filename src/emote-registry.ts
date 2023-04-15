@@ -35,7 +35,7 @@ function looksLikeAnEmoji(text: string): boolean {
 }
 
 class CCBotEmoji extends discord.Emoji {
-  constructor(client: CCBot, emoji: RawEmojiData) {
+  constructor(client: CCBot<true>, emoji: RawEmojiData) {
     super(client, emoji);
   }
 }
@@ -78,7 +78,7 @@ export default class CCBotEmoteRegistry {
                     emotes = [];
                     localRegistryCollation.set(emote.name!, emotes);
                 }
-                emotes.push(emote);
+                emotes.push(emote as commando.CommandoGuildEmoji);
             }
         }
         const localRegistry: Map<string, commando.CommandoGuildEmoji> = new Map();
@@ -173,7 +173,7 @@ export default class CCBotEmoteRegistry {
 
     /// Don't ask about the name.
     /// This defines the syntax of the "emote-".
-    public emojiResolverNina(text: string): commando.CommandoGuildEmoji | discord.Emoji {
+    public emojiResolverNina(text: string): discord.GuildEmoji | discord.Emoji {
         // Is it just an emote ID?
         const direct = this.client.emojis.cache.get(text);
         if (direct)
@@ -202,11 +202,11 @@ export default class CCBotEmoteRegistry {
         const a: string[] = [];
         for (const k of this.globalEmoteRegistry.keys())
             a.push(k);
-        for (const v of this.client.provider.get('global', 'emotes', []))
+        for (const v of this.client.provider.get('global', 'emotes', [] as string[]))
             if (!a.includes(v))
                 a.push(v.toString());
         if (guild)
-            for (const v of this.client.provider.get(guild, 'emotes', []))
+            for (const v of this.client.provider.get(guild, 'emotes', [] as string[]))
                 if (!a.includes(v))
                     a.push(v.toString());
         return a;
