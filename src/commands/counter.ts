@@ -13,15 +13,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
-import {CCBot, CCBotCommand} from '../ccbot';
-import {PageSwitcherOutputElementWithCategory, outputElements} from '../entities/page-switcher';
+import { CCBot, CCBotCommand } from '../ccbot';
+import { PageSwitcherOutputElementWithCategory, outputElements } from '../entities/page-switcher';
 
 /// A counter.
 export default class CounterCommand extends CCBotCommand {
     public constructor(client: CCBot) {
-        const opt = {
+        super(client, {
             name: '-util counter',
             description: 'Creates a 50-page bunch of nonsense to read through for bot testing.',
             group: 'util',
@@ -34,11 +33,10 @@ export default class CounterCommand extends CCBotCommand {
                     default: false
                 }
             ]
-        };
-        super(client, opt);
+        });
     }
 
-    public async run(message: commando.CommandoMessage, args: {error: boolean}): Promise<commando.CommandoMessageResponse> {
+    public async run(message: commando.CommandoMessage, args: { error: boolean }): Promise<commando.CommandoMessageResponse> {
         if (args.error)
             throw new Error('The user wanted an error.');
         const pages: PageSwitcherOutputElementWithCategory[] = [];
