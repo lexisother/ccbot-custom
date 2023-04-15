@@ -39,7 +39,7 @@ export default class HugCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandoMessage, args: {people: string[]}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {people: string[]}): Promise<commando.CommandoMessageResponse> {
         /*
          * Design contributions by:
          *  Emileyah: 208763015657553921

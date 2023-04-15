@@ -57,7 +57,7 @@ export default class JSONCommand extends CCBotCommand {
         this.command = json;
     }
 
-    public async run(message: commando.CommandoMessage, args: {args: string[]}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {args: string[]}): Promise<commando.CommandoMessageResponse> {
         if (this.command.nsfw && !nsfw(message.channel))
             return await message.say('That command is NSFW, and this is not an NSFW channel.');
 

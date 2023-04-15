@@ -29,7 +29,7 @@ export default class HelpCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandoMessage): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage): Promise<commando.CommandoMessageResponse> {
         const lines = [
             `__**${this.group.name} Commands**__`,
             ''

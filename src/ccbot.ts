@@ -149,12 +149,12 @@ export abstract class CCBotCommand extends commando.Command {
 
     public async onBlock(
         message: commando.CommandoMessage,
-        reason: string,
+        reason: commando.CommandBlockReason,
         // eslint-disable-next-line @typescript-eslint/ban-types
-        data?: Object
-    ): Promise<discord.Message | discord.Message[]> {
+        data?: commando.CommandBlockData
+    ): Promise<discord.Message | null> {
         if (reason === 'throttling')
-            return [];
+            return null;
         return super.onBlock(message, reason, data);
     }
 }

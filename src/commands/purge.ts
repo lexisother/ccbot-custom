@@ -39,7 +39,7 @@ export default class PurgeCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandoMessage, args: {seconds: number}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {seconds: number}): Promise<commando.CommandoMessageResponse> {
         // Get the database
         const database = this.client.entities.getEntity<PurgeDatabaseChannelEntity>(`purge-channel-${message.channel.id}`);
         if (!database)

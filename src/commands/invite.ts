@@ -28,7 +28,7 @@ export default class InviteCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandoMessage): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage): Promise<commando.CommandoMessageResponse> {
         // https://github.com/discordjs/Commando/blob/v0.12.0/src/commands/base.js#L346-L357
         const {owners} = this.client;
 		const ownerList = owners ? owners.map((usr, i) => {

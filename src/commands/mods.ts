@@ -33,7 +33,7 @@ export class ModsToolsGetCommand extends CCBotCommand {
         this.tools = tools;
     }
 
-    public async run(message: commando.CommandoMessage): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage): Promise<commando.CommandoMessageResponse> {
         const entityName = !this.tools ? 'mod-database-manager' : 'tool-database-manager';
         const modDB = this.client.entities.getEntity<ModDatabaseEntity | ToolDatabaseEntity>(entityName);
         if (modDB) {

@@ -148,7 +148,7 @@ export class RolesAddCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandoMessage, args: {roles: string[]}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {roles: string[]}): Promise<commando.CommandoMessageResponse> {
         return genericARRunner(message, args, true);
     }
 }
@@ -173,7 +173,7 @@ export class RolesRmCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandoMessage, args: {roles: string[]}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {roles: string[]}): Promise<commando.CommandoMessageResponse> {
         return genericARRunner(message, args, false);
     }
 }
@@ -191,7 +191,7 @@ export class RolesListCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandoMessage): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage): Promise<commando.CommandoMessageResponse> {
         if (!message.guild)
             return await message.say('You are floating in a void, free, unburdened by any force, not even gravity.\nThus, your roles are what you will them to be.');
         const whitelist = getWhitelist(this.client, message.guild);

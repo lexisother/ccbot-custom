@@ -198,7 +198,7 @@ export class SettingsCommand extends CCBotCommand {
         this.context = target;
     }
 
-    public async run(message: commando.CommandoMessage, args: {key: string; value: string}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {key: string; value: string}): Promise<commando.CommandoMessageResponse> {
         let instance = '';
         if (this.context === SettingsContext.Global) {
             instance = 'global';
@@ -282,7 +282,7 @@ export class ShowUserSettingsCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandoMessage): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage): Promise<commando.CommandoMessageResponse> {
         const res = (await getUserDatablock(this.client, message.author)).content;
         return message.say(`\`\`\`json\n${discord.Util.cleanCodeBlockContent(res)}\n\`\`\``);
     }

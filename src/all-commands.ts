@@ -59,7 +59,7 @@ export default function registerAllCommands(cr: CCBot): void {
         .registerCommand(new AddQuoteCommand(cr))
         .registerCommand(new RmQuoteCommand(cr))
 
-        .registerGroup('general')
+        .registerGroup({ id: 'general' })
         .registerCommand(new ArmyCommand(cr, 'general', 'cheesearmy'))
         .registerCommand(new ArmyCommand(cr, 'general', 'leacheesearmy', 'leaCheeseAngry'))
         .registerCommand(new PingCommand(cr))
@@ -73,7 +73,7 @@ export default function registerAllCommands(cr: CCBot): void {
         .registerCommand(new InspireCommand(cr))
         .registerCommand(new InviteCommand(cr))
 
-        .registerGroup('roles')
+        .registerGroup({ id: 'roles' })
         .registerCommand(new RolesAddCommand(cr))
         .registerCommand(new RolesRmCommand(cr))
         .registerCommand(new RolesListCommand(cr))

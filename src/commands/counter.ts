@@ -38,7 +38,7 @@ export default class CounterCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandoMessage, args: {error: boolean}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {error: boolean}): Promise<commando.CommandoMessageResponse> {
         if (args.error)
             throw new Error('The user wanted an error.');
         const pages: PageSwitcherOutputElementWithCategory[] = [];
