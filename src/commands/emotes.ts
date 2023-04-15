@@ -49,17 +49,17 @@ export class ListEmotesCommand extends CCBotCommand {
             if (!message.guild)
                 return await message.say('Cannot get overrides for a guild that doesn\'t exist.');
         // User aliases don't apply here, it's the *actual* emote list.
-        const refs: string[] = this.client.emoteRegistry.getEmoteRefs(message.guild || null);
+        const refs: string[] = this.client.emoteRegistry.getEmoteRefs(message.guild);
         refs.sort(naturalComparison);
         const elements: PageSwitcherOutputElement[] = [];
 
         for (const eref of refs) {
-            const emote = this.client.emoteRegistry.getEmote(message.guild || null, eref);
+            const emote = this.client.emoteRegistry.getEmote(message.guild, eref);
             if (!emoteSafe(emote, message.channel, this.sfw))
                 continue;
             let details = '**Native:**';
             if (args.search == 'overrides') {
-                const overrideType = this.client.emoteRegistry.isOverride(message.guild || null, eref);
+                const overrideType = this.client.emoteRegistry.isOverride(message.guild, eref);
                 if (!overrideType)
                     continue;
                 details = `**${overrideType} override:**`;
