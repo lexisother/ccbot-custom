@@ -23,20 +23,20 @@ import {DynamicData} from './dynamic-data';
 export abstract class SaneSettingProvider extends commando.SettingProvider<structures.SettingsStructure> {
     public client!: commando.CommandoClient;
 
-    private listenerCommandPrefixChange: (guild: commando.CommandoGuild | null, prefix: string | null) => void;
-    private listenerCommandStatusChange: (guild: discord.Guild | string, group: commando.Command, enabled: boolean) => void;
-    private listenerGroupStatusChange: (guild: discord.Guild | string, group: commando.CommandGroup, enabled: boolean) => void;
+    private listenerCommandPrefixChange: (guild?: commando.CommandoGuild | null, prefix?: string | null) => void;
+    private listenerCommandStatusChange: (guild: discord.Guild | null, group: commando.Command, enabled: boolean) => void;
+    private listenerGroupStatusChange: (guild: discord.Guild | null, group: commando.CommandGroup, enabled: boolean) => void;
     private listenerReloadSettings: () => void;
 
     public constructor() {
         super();
-        this.listenerCommandPrefixChange = (guild: commando.CommandoGuild | null, prefix: string | null): void => {
-            this.set(guild, 'prefix', prefix);
+        this.listenerCommandPrefixChange = (guild?: commando.CommandoGuild | null, prefix?: string | null): void => {
+            this.set(guild ?? null, 'prefix', prefix);
         };
-        this.listenerCommandStatusChange = (guild: discord.Guild | string, group: commando.Command, enabled: boolean): void => {
+        this.listenerCommandStatusChange = (guild: discord.Guild | null, group: commando.Command, enabled: boolean): void => {
             this.set(guild, `cmd-${group.groupId}-${group.memberName}`, enabled);
         };
-        this.listenerGroupStatusChange = (guild: discord.Guild | string, group: commando.CommandGroup, enabled: boolean): void => {
+        this.listenerGroupStatusChange = (guild: discord.Guild | null, group: commando.CommandGroup, enabled: boolean): void => {
             this.set(guild, `grp-${group.id}`, enabled);
         };
         this.listenerReloadSettings = (): void => {
