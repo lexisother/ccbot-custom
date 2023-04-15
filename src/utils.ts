@@ -76,13 +76,13 @@ export function emoteSafe(emote: discord.Emoji, channel: discord.Channel | null,
 }
 
 export type GuildTextBasedChannel = discord.TextChannel | discord.NewsChannel;
-export function isGuildChannelTextBased(channel: discord.GuildBasedChannel): channel is GuildTextBasedChannel {
+export function isGuildChannelTextBased(channel: discord.GuildBasedChannel | discord.GuildChannel): channel is GuildTextBasedChannel {
     return channel instanceof discord.TextChannel || channel instanceof discord.NewsChannel;
 }
 
 export type TextBasedChannel = discord.DMChannel | GuildTextBasedChannel;
 export function isChannelTextBased(channel: discord.Channel): channel is TextBasedChannel {
-    return channel instanceof discord.DMChannel || isGuildChannelTextBased(channel as discord.GuildChannel);
+    return channel instanceof discord.DMChannel || isGuildChannelTextBased(channel as discord.GuildBasedChannel);
 }
 
 export function getGuildTextChannel(client: CCBot, guild: discord.Guild, id: string): GuildTextBasedChannel | undefined {
