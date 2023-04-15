@@ -17,8 +17,8 @@ import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import CCBotEmoteRegistry from './emote-registry';
 import DynamicDataManager from './dynamic-data';
-import {Entity, EntityData, EntityRegistry} from './entity-registry';
-import {SaneSettingProvider} from "./setting-provider"
+import { Entity, EntityData, EntityRegistry } from './entity-registry';
+import { SaneSettingProvider } from "./setting-provider"
 import * as discordAPI from 'discord-api-types/v10';
 
 declare module 'discord.js' {
@@ -97,7 +97,7 @@ export abstract class CCBot<Ready extends boolean = boolean> extends commando.Co
             if (!entity)
                 return;
             const emojiDetails: discordAPI.APIEmoji = event.d.emoji;
-            let emoji: commando.CommandoGuildEmoji;
+            let emoji: discord.GuildEmoji | discord.Emoji;
             if (emojiDetails.id) {
                 const emojiX = this.emojis.cache.get(emojiDetails.id);
                 if (!emojiX)
@@ -125,7 +125,7 @@ export abstract class CCBot<Ready extends boolean = boolean> extends commando.Co
             // No guild, no idea who to inform
             if (!guild)
                 return;
-            this.emit('ccbotBanAddRemove', guild, event.d.user, event.t == 'GUILD_BAN_ADD');
+            this.emit('ccbotBanAddRemove', guild as commando.CommandoGuild, event.d.user, event.t == 'GUILD_BAN_ADD');
         }
     }
 }
