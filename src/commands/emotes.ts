@@ -167,7 +167,7 @@ export class ReactCommand extends CCBotCommand {
             return await message.say('Why?');
         // NOTE: To prevent NSFW emote leakage, that check is done based on the target channel.
         // However, the *emote lookup* is based on the source channel (otherwise things don't make sense)
-        let targetChannel: TextBasedChannel;
+        let targetChannel: discord.TextBasedChannel;
         let targetMessage: discord.Message;
         let start = 0;
         if (
