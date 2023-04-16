@@ -149,6 +149,31 @@ class CCBotMain {
     }
 }
 
+// Please don't pay attention. {{{
+const oldValidateInfo = commando.Command['validateInfo'];
+commando.Command['validateInfo'] = function (client: commando.CommandoClient, info: commando.CommandInfo): void {
+    try {
+        oldValidateInfo(client, info);
+    } catch (error) {
+        if (!(error instanceof Error)) throw error;
+        if (error.message === 'Command name must not include spaces.') return;
+        throw error;
+    }
+};
+const oldValidateAndParseSlashInfo = commando.Command['validateAndParseSlashInfo'];
+commando.Command['validateAndParseSlashInfo'] = function (info: commando.CommandInfo, slashInfo?: commando.SlashCommandInfo): commando.APISlashCommand | null {
+    const commandInfo = commando.Util.deepCopy(info);
+    commandInfo.name = commandInfo.name.split(' ').at(-1)!;
+    return oldValidateAndParseSlashInfo(commandInfo, slashInfo);
+};
+const oldValidateAndParseContextMenuInfo = commando.Command['validateAndParseContextMenuInfo'];
+commando.Command['validateAndParseContextMenuInfo'] = function (info: commando.CommandInfo): discord.RESTPostAPIContextMenuApplicationCommandsJSONBody[] {
+    const commandInfo = commando.Util.deepCopy(info);
+    commandInfo.name = commandInfo.name.split(' ').at(-1)!;
+    return oldValidateAndParseContextMenuInfo(commandInfo);
+};
+// }}}
+
 const ccbot = new CCBotMain();
 global.ccbot = ccbot;
 global.client = ccbot.client;
