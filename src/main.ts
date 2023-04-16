@@ -48,9 +48,9 @@ class CCBotMain {
             owners: typeof this.secrets.owner === "string" ? [this.secrets.owner] : this.secrets.owner,
             prefix: this.secrets.commandPrefix,
             intents: [
-                'Guilds',         'GuildEmojisAndStickers',   // these should go without saying
-                'GuildMembers',                               // (privileged) required for greeter, react-roles and a few other things
-                'GuildBans',                                  // required for auditor
+                'MessageContent', 'Guilds', 'GuildEmojisAndStickers',   // these should go without saying
+                'GuildMembers',                                         // (privileged) required for greeter, react-roles and a few other things
+                'GuildBans',                                            // required for auditor
                 // messages and reactions
                 'GuildMessages',  'GuildMessageReactions',
                 'DirectMessages', 'DirectMessageReactions'
