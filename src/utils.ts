@@ -69,7 +69,7 @@ export function emoteSafe(emote: discord.Emoji, channel: discord.Channel | null,
             return true;
     }
     // Failing this, *local* NSFW flag means guild emotes should be considered NSFW by default
-    if (client.provider.get(guild, 'nsfw', true))
+    if (client.provider.get(guild, 'nsfw', false))
         return false;
     // Failing this, we have no reason to believe the emote is NSFW
     return true;
