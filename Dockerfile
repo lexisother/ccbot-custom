@@ -1,21 +1,44 @@
-FROM node:12 as builder
+## build runner
+FROM node:lts-alpine as build-runner
 
-WORKDIR /build
+# Add git and gyp deps
+RUN apk add git g++ make py3-pip
 
-COPY . .
+# Set temp directory
+WORKDIR /tmp/app
 
-RUN npm install
-RUN npm run dist
+# Move package.json
+COPY package.json .
 
-FROM node:12-alpine
+# Install dependencies
+RUN npm install -g pnpm
+RUN pnpm install
 
+# Move source files
+COPY src ./src
+COPY tsconfig.json   .
+
+# Build project
+RUN pnpm run build
+
+## producation runner
+FROM node:lts-alpine as prod-runner
+
+# Add git and gyp deps
+RUN apk add git g++ make py3-pip
+
+# Set work directory
 WORKDIR /app
 
-COPY ./package.json .
-COPY ./package-lock.json .
+# Copy package.json from build-runner
+COPY --from=build-runner /tmp/app/package.json /app/package.json
 
-RUN npm install --only=prod
+# Install dependencies
+RUN npm install -g pnpm
+RUN pnpm install --only=production
 
-COPY --from=builder /build/dist .
+# Move build files
+COPY --from=build-runner /tmp/app/dist /app/dist
 
-CMD [ "node", "main.js" ]
+# Start bot
+CMD [ "node", "dist/main.js" ]
