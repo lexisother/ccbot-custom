@@ -77,6 +77,7 @@ export interface SettingsStructure {
     'emotes-sfw'?: string[];
     'headerless-say'?: boolean;
     'optin-roles'?: 'yes' | 'no' | 'both';
+    'starboard-channel': string;
     [k: `channel-${string}`]: string;
     [k: `cmd-${string}-${string}`]: boolean;
     [k: `emote-${string}`]: number;
