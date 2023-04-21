@@ -25,7 +25,7 @@ declare module 'discord.js' {
     // THE FOLLOWING EVENTS ARE EXTENSIONS:
     interface ClientEvents {
         raw: [discord.GatewayDispatchPayload];
-        ccbotMessageReactionAdd: [discord.Emoji, discord.Snowflake, discord.Snowflake, discord.Snowflake];
+        ccbotMessageReactionAdd: [discord.Emoji, discord.Snowflake, discord.Snowflake, discord.Snowflake, boolean];
         ccbotMessageDeletes: [utils.TextBasedChannel, discord.Snowflake[]];
         ccbotMessageUpdateUnchecked: [utils.TextBasedChannel, discord.Snowflake];
         ccbotBanAddRemove: [commando.CommandoGuild, discord.APIUser, boolean]
@@ -113,7 +113,7 @@ export abstract class CCBot<Ready extends boolean = boolean> extends commando.Co
             }
             entity.emoteReactionTouched(emoji, user, event.t == 'MESSAGE_REACTION_ADD');
             if (event.d.guild_id) {
-                this.emit('ccbotMessageReactionAdd', emoji, event.d.message_id, event.d.channel_id, event.d.guild_id)
+                this.emit('ccbotMessageReactionAdd', emoji, event.d.message_id, event.d.channel_id, event.d.guild_id, event.t == "MESSAGE_REACTION_ADD")
             }
         } else if ((event.t == 'MESSAGE_UPDATE') || (event.t == 'MESSAGE_DELETE') || (event.t == 'MESSAGE_DELETE_BULK')) {
             const channel = this.channels.cache.get(event.d.channel_id);

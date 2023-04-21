@@ -34,6 +34,7 @@ class StarboardEntity extends CCBotEntity {
     message: discord.Snowflake,
     channel: discord.Snowflake,
     guild: discord.Snowflake,
+    add: boolean,
   ) {
     if (!this.client.isProviderReady()) return;
     if (guild !== this.guild.id) return;
@@ -42,11 +43,29 @@ class StarboardEntity extends CCBotEntity {
 
     // Ye who tread here, tread with utmost care.
     if (emote.name === '⭐') {
-      if (!this.messages[message]) this.messages[message] = 0;
-      this.messages[message]++;
       let starboardChannel = this.guild.channels.cache.get(gChannel) as discord.TextChannel;
       if (!starboardChannel)
         starboardChannel = (await this.client.channels.fetch(gChannel)) as discord.TextChannel;
+      if (!add) {
+        if (!this.messages[message]) return;
+        this.messages[message]--;
+        console.log(this.messages[message]);
+        let starboardMessage = starboardChannel.messages.cache.get(
+          this.starBinds[message],
+        ) as discord.Message;
+        if (!starboardMessage)
+          starboardMessage = (await starboardChannel.messages.fetch(
+            this.starBinds[message],
+          )) as discord.Message;
+        const newContent = starboardMessage.content.replace(
+          /⭐ \d+/,
+          `⭐ ${this.messages[message]}`,
+        );
+        await starboardMessage.edit(newContent);
+        return;
+      }
+      if (!this.messages[message]) this.messages[message] = 0;
+      this.messages[message]++;
       if (this.messages[message] === 1) {
         // Don't look at it. {{{
         let fromChannel = this.guild.channels.cache.get(channel) as discord.TextChannel;
