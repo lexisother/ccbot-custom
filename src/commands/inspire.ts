@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
 
@@ -29,7 +28,8 @@ export class InspireCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandoMessage): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage): Promise<commando.CommandoMessageResponse> {
+        if (!this.client.isProviderReady()) return message.say("Something terrible has happened, the settings provider is not initialized.");
         const quotes: string[] = this.client.provider.get('global', 'quotes', []);
         const lastQuote: number = this.client.provider.get('global', 'lastQuote', -1);
         if (quotes.length == 0)
@@ -52,7 +52,7 @@ export class InspireCommand extends CCBotCommand {
 /// Adds a quote.
 export class AddQuoteCommand extends CCBotCommand {
     public constructor(client: CCBot) {
-        const opt = {
+        const opt: commando.CommandInfo = {
             name: '-util add-quote',
             description: 'adds a quote',
             group: 'util',
@@ -69,7 +69,8 @@ export class AddQuoteCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandoMessage, args: {quote: string}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {quote: string}): Promise<commando.CommandoMessageResponse> {
+        if (!this.client.isProviderReady()) return message.say("Something terrible has happened, the settings provider is not initialized.");
         const quotes: string[] = this.client.provider.get('global', 'quotes', []);
         const newQuotes: string[] = JSON.parse(JSON.stringify(quotes));
         newQuotes.push(args.quote);
@@ -81,7 +82,7 @@ export class AddQuoteCommand extends CCBotCommand {
 /// Removes a quote.
 export class RmQuoteCommand extends CCBotCommand {
     public constructor(client: CCBot) {
-        const opt = {
+        const opt: commando.CommandInfo = {
             name: '-util rm-quote',
             description: 'removes a quote',
             group: 'util',
@@ -98,7 +99,8 @@ export class RmQuoteCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandoMessage, args: {quote: number}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {quote: number}): Promise<commando.CommandoMessageResponse> {
+        if (!this.client.isProviderReady()) return message.say("Something terrible has happened, the settings provider is not initialized.");
         const quotes: string[] = this.client.provider.get('global', 'quotes', []);
         const newQuotes: string[] = JSON.parse(JSON.stringify(quotes));
         if (args.quote < 0)

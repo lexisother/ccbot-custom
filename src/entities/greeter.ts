@@ -14,11 +14,11 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import * as discord from 'discord.js';
-import {CCBot, CCBotEntity} from '../ccbot';
-import {EntityData} from '../entity-registry';
-import {TextBasedChannel, getGuildTextChannel, silence} from '../utils';
-import {convertRoleGroup, getUserDeniedRoles} from '../role-utils';
-import {say} from '../commands/say';
+import { CCBot, CCBotEntity } from '../ccbot';
+import { EntityData } from '../entity-registry';
+import { TextBasedChannel, getGuildTextChannel, silence } from '../utils';
+import { convertRoleGroup, getUserDeniedRoles } from '../role-utils';
+import { say } from '../commands/say';
 
 async function sendGreeting(client: CCBot, member: discord.User, greeting: string, channel: TextBasedChannel): Promise<void> {
     const result = await say(greeting, {
@@ -30,7 +30,7 @@ async function sendGreeting(client: CCBot, member: discord.User, greeting: strin
         args: []
     });
     if (result)
-        await channel.send(result.text, result.opts);
+        await channel.send({ ...result.opts, content: result.text });
 }
 
 /// Implements greetings, farewells and automatic role assignment.
@@ -42,7 +42,7 @@ class GreeterEntity extends CCBotEntity {
     public constructor(c: CCBot, data: EntityData) {
         super(c, 'greeter-manager', data);
         this.memberListener = (m: discord.GuildMember): void => {
-            if (this.killed)
+            if (this.killed || !c.isProviderReady())
                 return;
             const channel = getGuildTextChannel(c, m.guild, 'greet');
             if (channel) {
@@ -64,12 +64,12 @@ class GreeterEntity extends CCBotEntity {
             if (this.killed)
                 return;
             const denied = getUserDeniedRoles(this.client, m);
-            const rmRoles = m.roles.cache.keyArray().filter((v: string): boolean => denied.includes(v));
+            const rmRoles = Array.from(m.roles.cache.keys()).filter((v: string): boolean => denied.includes(v));
             if (rmRoles.length > 0)
                 silence(m.roles.remove(rmRoles));
         };
         this.memberRemoveListener = async (m: discord.GuildMember | discord.PartialGuildMember): Promise<void> => {
-            if (this.killed)
+            if (this.killed || !c.isProviderReady())
                 return;
             const channel = getGuildTextChannel(c, m.guild, 'greet');
             if (channel) {

@@ -14,6 +14,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import * as discord from 'discord.js';
+import * as commando from 'discord.js-commando'
 import {CCBot, CCBotEntity} from '../ccbot';
 import {EntityData} from '../entity-registry';
 
@@ -84,7 +85,7 @@ export async function getUserDatablock(c: CCBot, user: discord.User | string): P
     }
 }
 
-export async function userAwareGetEmote(c: CCBot, user: discord.User | string | null, guild: discord.Guild | null, name: string): Promise<discord.GuildEmoji | discord.Emoji> {
+export async function userAwareGetEmote(c: CCBot, user: discord.User | string | null, guild: commando.CommandoGuild | null, name: string): Promise<discord.Emoji | discord.GuildEmoji | null> {
     if (user) {
         const datablock = await getUserDatablock(c, user);
         const res = datablock.get()[`emote-${name}`];

@@ -21,9 +21,9 @@ import {doneResponse} from '../utils';
 import {outputElements} from '../entities/page-switcher';
 
 /// Gets inclusivity/exclusivity group involvement given a target and a role ID list.
-function getInvolvement(client: commando.CommandoClient, guild: discord.Guild, groupType: string, involvedIDs: string[]): string[] {
+function getInvolvement(client: CCBot, guild: discord.Guild, groupType: string, involvedIDs: string[]): string[] {
     const involvement: string[] = [];
-    const groups: string[] = client.provider.get(guild, `roles-${groupType}`, []);
+    const groups: string[] = client.provider?.get(guild, `roles-${groupType}`, []) ?? [];
     for (const v of groups) {
         const roles: string[] = convertRoleGroup(client, guild, v);
         for (const r of involvedIDs) {
@@ -36,8 +36,8 @@ function getInvolvement(client: commando.CommandoClient, guild: discord.Guild, g
     return involvement;
 }
 
-function getWhitelist(client: commando.CommandoClient, guild: discord.Guild): string[] {
-    const whitelistGroups: string[] = client.provider.get(guild, 'roles-whitelist', []);
+function getWhitelist(client: CCBot, guild: discord.Guild): string[] {
+    const whitelistGroups: string[] = client.provider?.get(guild, 'roles-whitelist', []) ?? [];
     const whitelist: string[] = [];
     for (const v of whitelistGroups)
         for (const v2 of convertRoleGroup(client, guild, v))
@@ -48,16 +48,16 @@ function getWhitelist(client: commando.CommandoClient, guild: discord.Guild): st
 /// There's a lot of common stuff this combines into one function.
 /// Notably, this assumes that whoever causes this to be run, they are authorized to do so.
 /// If this may not be the case, add the checks in the calling function; this function focuses on the logic of the effects.
-export async function runRoleCommand(client: commando.CommandoClient, member: discord.GuildMember, roles: string[], add: boolean): Promise<string> {
+export async function runRoleCommand(client: CCBot<true>, member: discord.GuildMember, roles: string[], add: boolean): Promise<string> {
 
-    const userRoles = member.roles.cache.keyArray();
+    const userRoles = Array.from(member.roles.cache.keys());
     const request = convertRoles(client, member.guild, roles, false);
     if (!request)
         return 'The request contained invalid roles.';
 
     // -- Check that all roles are allowed --
 
-    const whitelist: string[] = getWhitelist(client, member.guild);
+    const whitelist: string[] = getWhitelist(client as CCBot, member.guild);
     for (const v of request)
         if (!whitelist.includes(v))
             return 'You don\'t have permission for some of these roles.';
@@ -122,16 +122,16 @@ export async function runRoleCommand(client: commando.CommandoClient, member: di
     return doneResponse();
 }
 
-async function genericARRunner(message: commando.CommandoMessage, args: {roles: string[]}, add: boolean): Promise<discord.Message | discord.Message[]> {
+async function genericARRunner(message: commando.CommandoMessage, args: {roles: string[]}, add: boolean): Promise<commando.CommandoMessageResponse> {
     if (!message.member)
         return message.say('There aren\'t roles in a DM channel.');
-    return message.say(await runRoleCommand(message.client, message.member, args.roles, add));
+    return message.say(await runRoleCommand(message.client as CCBot<true>, message.member, args.roles, add));
 }
 
 /// A command for someone to add roles to themselves using the bot.
 export class RolesAddCommand extends CCBotCommand {
     public constructor(client: CCBot) {
-        const opt = {
+        const opt: commando.CommandInfo = {
             name: '-roles add',
             description: 'Gives you roles.',
             group: 'roles',
@@ -148,7 +148,7 @@ export class RolesAddCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandoMessage, args: {roles: string[]}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {roles: string[]}): Promise<commando.CommandoMessageResponse> {
         return genericARRunner(message, args, true);
     }
 }
@@ -156,7 +156,7 @@ export class RolesAddCommand extends CCBotCommand {
 /// A command for someone to remove roles from themselves using the bot.
 export class RolesRmCommand extends CCBotCommand {
     public constructor(client: CCBot) {
-        const opt = {
+        const opt: commando.CommandInfo = {
             name: '-roles rm',
             description: 'Removes roles from you.',
             group: 'roles',
@@ -173,7 +173,7 @@ export class RolesRmCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandoMessage, args: {roles: string[]}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {roles: string[]}): Promise<commando.CommandoMessageResponse> {
         return genericARRunner(message, args, false);
     }
 }
@@ -191,7 +191,7 @@ export class RolesListCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandoMessage): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage): Promise<commando.CommandoMessageResponse> {
         if (!message.guild)
             return await message.say('You are floating in a void, free, unburdened by any force, not even gravity.\nThus, your roles are what you will them to be.');
         const whitelist = getWhitelist(this.client, message.guild);

@@ -41,12 +41,12 @@ class OldBehaviorsEntity extends CCBotEntity {
                 //const cc = m.guild.channels.find('name', 'crosscode');
             }
         };
-        this.client.on('message', this.messageListener);
+        this.client.on('messageCreate', this.messageListener);
     }
 
     public onKill(transferOwnership: boolean): void {
         super.onKill(transferOwnership);
-        this.client.removeListener('message', this.messageListener);
+        this.client.removeListener('messageCreate', this.messageListener);
     }
 }
 

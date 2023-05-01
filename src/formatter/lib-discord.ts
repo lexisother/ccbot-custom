@@ -16,7 +16,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {VM, Value, asString, falseValue, wrapFunc} from './core';
-import {TextBasedChannel, emoteSafe, findMemberByRef, isChannelTextBased} from '../utils';
+import {emoteSafe, findMemberByRef, isChannelTextBased} from '../utils';
 import {CCBot} from '../ccbot';
 import {userAwareGetEmote} from '../entities/user-datablock';
 
@@ -25,7 +25,7 @@ const vmFindUserTime = 128;
 
 export interface VMContext {
     client: CCBot;
-    channel: TextBasedChannel;
+    channel: discord.TextBasedChannel;
     // The person whose say- code we are running.
     // Null means it comes from guild settings at some level,
     //  which means it has as much permission as the bot within the guild.
@@ -38,7 +38,7 @@ export interface VMContext {
     protectedContent: boolean;
     args: Value[];
     // The current embed.
-    embed?: discord.MessageEmbedOptions;
+    embed?: discord.APIEmbed;
 }
 
 const discordMessageLinkURL = /([0-9]+)\/([0-9]+)$/;
@@ -50,7 +50,7 @@ function guildOfChannel(channel: discord.Channel): discord.Guild | undefined {
 /// @param where The channel this is being sent to.
 /// @param source The channel the message is being sourced from.
 /// @param user A security principal like writer; null is guild-level access (@'where')
-function userHasReadAccessToChannel(where: TextBasedChannel, source: TextBasedChannel, user: discord.User | null): boolean {
+function userHasReadAccessToChannel(where: discord.TextBasedChannel, source: discord.TextBasedChannel, user: discord.User | null): boolean {
     const quoteGuild = guildOfChannel(source);
     if (!user) {
         // Guild access
@@ -67,7 +67,7 @@ function userHasReadAccessToChannel(where: TextBasedChannel, source: TextBasedCh
         if (quoteGuild) {
             const userAsMember = quoteGuild.members.cache.get(user.id);
             if (userAsMember)
-                if (userAsMember.permissionsIn(source).has('VIEW_CHANNEL'))
+                if (userAsMember.permissionsIn(source.id).has('ViewChannel'))
                     return true;
         }
         return false;
@@ -143,13 +143,13 @@ export function installDiscord(vm: VM, context: VMContext): void {
         'args': wrapFunc('args', 0, async (): Promise<Value> => context.args),
         'prefix': wrapFunc('prefix', 0, async (): Promise<Value> => {
             const guild = guildOfChannel(context.channel);
-            return (guild && (guild as commando.CommandoGuild).commandPrefix) || context.client.commandPrefix || context.client.user!.toString();
+            return (guild && (guild as commando.CommandoGuild).prefix) || context.client.prefix || context.client.user!.toString();
         }),
         'cause': wrapFunc('cause', 0, async (): Promise<Value> => context.cause.id),
         'emote': wrapFunc('emote', 1, async (args: Value[]): Promise<Value> => {
             const guild = guildOfChannel(context.channel);
-            const emote = await userAwareGetEmote(context.client, context.writer, guild || null, args[0].toString());
-            if (!emoteSafe(emote, context.channel))
+            const emote = await userAwareGetEmote(context.client, context.writer, guild as commando.CommandoGuild, args[0].toString());
+            if (!emote || !emoteSafe(emote, context.channel))
                 return '';
             return emote.toString();
         }),

@@ -23,7 +23,7 @@ import {getUserDatablock} from '../entities/user-datablock';
 export interface SayResult {
     error: boolean;
     text: string;
-    opts: discord.MessageOptions & { split: false };
+    opts: discord.MessageCreateOptions & { split: false };
 }
 
 // External interface for cases where we want a "say-like interface" (say, greeting, ...?)
@@ -40,10 +40,10 @@ export async function say(code: string, vmContext: VMContext): Promise<SayResult
         };
     }
     // Message Options [
-    const opts: discord.MessageOptions & { split: false } = { split: false };
+    const opts: discord.MessageCreateOptions & { split: false } = { split: false };
     let hasMeta = false;
     if (vmContext.embed) {
-        opts.embed = vmContext.embed;
+        opts.embeds = [vmContext.embed];
         hasMeta = true;
     }
     // ]
@@ -59,7 +59,7 @@ export async function say(code: string, vmContext: VMContext): Promise<SayResult
 /// For ventriloquism.
 export default class SayCommand extends CCBotCommand {
     public constructor(client: CCBot) {
-        const opt = {
+        const opt: commando.CommandInfo = {
             name: 'say',
             description: 'Has the bot say something. Please see the Format Syntax Guide (.cc -formatter help)',
             group: 'general',
@@ -79,7 +79,7 @@ export default class SayCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandoMessage, args: {text: string}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {text: string}): Promise<commando.CommandoMessageResponse> {
         // Bootstrap?
         const {bootstrap} = (await getUserDatablock(this.client, message.author)).get();
         if (bootstrap && (typeof bootstrap === 'string'))
@@ -95,7 +95,7 @@ export default class SayCommand extends CCBotCommand {
         if (sayResult) {
             // It's important that this *does not* use global in place of the setting in the guild if none exists.
             // By per-guild default say should always have a header.
-            const headerless = sayResult.error || this.client.provider.get(message.guild || 'global', 'headerless-say', false);
+            const headerless = sayResult.error || this.client.provider?.get(message.guild || 'global', 'headerless-say', false);
             if (!headerless) {
                 if (message.deletable)
                     silence(message.delete());

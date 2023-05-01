@@ -16,14 +16,15 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {localAdminCheck} from './utils';
+import { CCBot } from './ccbot';
 
 /// Retrieves and converts a role group to role IDs.
-export function convertRoleGroup(client: commando.CommandoClient, guild: discord.Guild, text: string): string[] {
+export function convertRoleGroup(client: CCBot<true>, guild: discord.Guild, text: string): string[] {
     return convertRoles(client, guild, client.provider.get(guild, `roles-group-${text}`, []), true)!;
 }
 
 /// Converts role names to role IDs.
-export function convertRoles(client: commando.CommandoClient, guild: discord.Guild, src: string[], permissive: boolean): string[] | null {
+export function convertRoles(_client: commando.CommandoClient, guild: discord.Guild, src: string[], permissive: boolean): string[] | null {
     const roleIDs: string[] = [];
     for (const v of src) {
         const vr = guild.roles.cache.find((r: discord.Role): boolean => {
@@ -40,7 +41,7 @@ export function convertRoles(client: commando.CommandoClient, guild: discord.Gui
 
 /// Gets the list of roles denied to a user.
 /// This is ultimate-level authority, even above administrators to an extent (as they can change the settings)
-export function getUserDeniedRoles(client: commando.CommandoClient, member: discord.GuildMember): string[] {
+export function getUserDeniedRoles(client: CCBot<true>, member: discord.GuildMember): string[] {
     const denial = convertRoleGroup(client, member.guild, 'deny-role');
     for (const s of convertRoleGroup(client, member.guild, `deny-user-${member.id}`))
         denial.push(s);
@@ -58,12 +59,12 @@ export function localRPCheck(message: commando.CommandoMessage, enablingPermissi
     if (localAdminCheck(message))
         return true;
     if (message.member) {
-        for (const role of convertRoleGroup(message.client, message.member.guild, enablingRoleGroup))
+        for (const role of convertRoleGroup(message.client as CCBot<true>, message.member.guild, enablingRoleGroup))
             if (message.member.roles.cache.has(role))
                 return true;
         // Last chance, so return false if this fails
         for (const permission of enablingPermissions)
-            if (!message.member.hasPermission(permission))
+            if (!message.member.permissions.has(permission))
                 return false;
     }
     return false;

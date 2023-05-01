@@ -17,51 +17,36 @@ import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import CCBotEmoteRegistry from './emote-registry';
 import DynamicDataManager from './dynamic-data';
-import {Entity, EntityData, EntityRegistry} from './entity-registry';
-import {GuildTextBasedChannel, TextBasedChannel} from './utils';
-import * as discordAPI from 'discord-api-types/v8';
+import { Entity, EntityData, EntityRegistry } from './entity-registry';
+import { SaneSettingProvider } from "./setting-provider"
+import * as utils from './utils';
 
 declare module 'discord.js' {
     // THE FOLLOWING EVENTS ARE EXTENSIONS:
     interface ClientEvents {
-        raw: [discordAPI.GatewayDispatchPayload];
+        raw: [discord.GatewayDispatchPayload];
         ccbotMessageReactionAdd: [discord.Emoji, discord.Snowflake, discord.Snowflake, discord.Snowflake, boolean];
-        ccbotMessageDeletes: [TextBasedChannel, discord.Snowflake[]];
-        ccbotMessageUpdateUnchecked: [TextBasedChannel, discord.Snowflake];
-        ccbotBanAddRemove: [discord.Guild, discordAPI.APIUser, boolean]
+        ccbotMessageDeletes: [utils.TextBasedChannel, discord.Snowflake[]];
+        ccbotMessageUpdateUnchecked: [utils.TextBasedChannel, discord.Snowflake];
+        ccbotBanAddRemove: [commando.CommandoGuild, discord.APIUser, boolean]
     }
 
-}
-
-declare module 'discord.js-commando' {
-    interface CommandoMessage {
-        client: commando.Client;
-    }
 }
 
 /// The modified CommandoClient used by this bot.
 /// This contains all of the fields and methods for the extension,
 /// but not the full constructor, and must not be constructed.
 /// See ccbot-impl.ts for why this is.
-export abstract class CCBot extends commando.CommandoClient {
+export abstract class CCBot<Ready extends boolean = boolean> extends commando.CommandoClient<Ready, boolean, SaneSettingProvider> {
     public dynamicData: DynamicDataManager;
     public entities: EntityRegistry<CCBot, CCBotEntity>;
     public emoteRegistry: CCBotEmoteRegistry;
+    declare public provider: discord.If<Ready, SaneSettingProvider>;
 
     protected constructor(co: commando.CommandoClientOptions) {
         // TODO: get rid of this by always fetching guild members explicitly when needed???
-        co.fetchAllMembers = true;
-        co.ws = {
-            intents: [
-                'GUILDS', 'GUILD_EMOJIS',   // these should go without saying
-                'GUILD_MEMBERS',            // (privileged) required for greeter, react-roles and a few other things
-                'GUILD_BANS',               // required for auditor
-                // messages and reactions
-                 'GUILD_MESSAGES',  'GUILD_MESSAGE_REACTIONS',
-                'DIRECT_MESSAGES', 'DIRECT_MESSAGE_REACTIONS'
-            ]
-        };
-        co.messageEditHistoryMaxSize = 0;
+        // co.fetchAllMembers = true;
+        // co.messageEditHistoryMaxSize = 0;
         super(co);
         this.emoteRegistry = new CCBotEmoteRegistry(this);
         this.dynamicData = new DynamicDataManager();
@@ -71,7 +56,7 @@ export abstract class CCBot extends commando.CommandoClient {
             this.entities.start();
             this.emoteRegistry.updateGlobalEmoteRegistry();
         });
-        this.on('raw', (event: discordAPI.GatewayDispatchPayload): void => {
+        this.on('raw', (event: discord.GatewayDispatchPayload): void => {
             this.handleRawEvent(event);
         });
         const callbackUpdateGER = (): void => {
@@ -102,7 +87,7 @@ export abstract class CCBot extends commando.CommandoClient {
     /// You really, really shouldn't have to add something here.
     /// As far as I know the only kinds of events that need this kind of thing are reaction events,
     /// and I have already solved those... well enough.
-    private handleRawEvent(event: discordAPI.GatewayDispatchPayload): void {
+    private handleRawEvent(event: discord.GatewayDispatchPayload): void {
         if (event.t == 'MESSAGE_REACTION_ADD' || event.t == 'MESSAGE_REACTION_REMOVE') {
             // Ew ew ew WHY IS THIS NECESSARY TO MAKE REACTIONS WORK
             // https://discordjs.guide/popular-topics/reactions.html#listening-for-reactions-on-old-messages
@@ -115,8 +100,8 @@ export abstract class CCBot extends commando.CommandoClient {
                 entity = this.entities.getEntity(`starboard-${event.d.guild_id}`);
             if (!entity)
                 return;
-            const emojiDetails: discordAPI.APIEmoji = event.d.emoji;
-            let emoji: discord.Emoji;
+            const emojiDetails: discord.APIEmoji = event.d.emoji;
+            let emoji: discord.GuildEmoji | discord.Emoji;
             if (emojiDetails.id) {
                 const emojiX = this.emojis.cache.get(emojiDetails.id);
                 if (!emojiX)
@@ -136,18 +121,18 @@ export abstract class CCBot extends commando.CommandoClient {
             if (!channel)
                 return;
             if (event.t == 'MESSAGE_UPDATE') {
-                this.emit('ccbotMessageUpdateUnchecked', channel as TextBasedChannel, event.d.id);
+                this.emit('ccbotMessageUpdateUnchecked', channel as utils.TextBasedChannel, event.d.id);
             } else if (event.t == 'MESSAGE_DELETE') {
-                this.emit('ccbotMessageDeletes', channel as TextBasedChannel, [event.d.id]);
+                this.emit('ccbotMessageDeletes', channel as utils.TextBasedChannel, [event.d.id]);
             } else if (event.t == 'MESSAGE_DELETE_BULK') {
-                this.emit('ccbotMessageDeletes', channel as GuildTextBasedChannel, event.d.ids);
+                this.emit('ccbotMessageDeletes', channel as utils.TextBasedChannel, event.d.ids);
             }
         } else if ((event.t == 'GUILD_BAN_ADD') || (event.t == 'GUILD_BAN_REMOVE')) {
             const guild = this.guilds.cache.get(event.d.guild_id);
             // No guild, no idea who to inform
             if (!guild)
                 return;
-            this.emit('ccbotBanAddRemove', guild, event.d.user, event.t == 'GUILD_BAN_ADD');
+            this.emit('ccbotBanAddRemove', guild as commando.CommandoGuild, event.d.user, event.t == 'GUILD_BAN_ADD');
         }
     }
 }
@@ -171,12 +156,11 @@ export abstract class CCBotCommand extends commando.Command {
 
     public async onBlock(
         message: commando.CommandoMessage,
-        reason: string,
-        // eslint-disable-next-line @typescript-eslint/ban-types
-        data?: Object
-    ): Promise<discord.Message | discord.Message[]> {
+        reason: commando.CommandBlockReason,
+        data?: commando.CommandBlockData
+    ): Promise<discord.Message | null> {
         if (reason === 'throttling')
-            return [];
+            return null;
         return super.onBlock(message, reason, data);
     }
 }

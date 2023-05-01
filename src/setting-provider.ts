@@ -18,32 +18,25 @@ import * as commando from 'discord.js-commando';
 import * as structures from './data/structures';
 import {DynamicData} from './dynamic-data';
 
-declare module 'discord.js-commando' {
-    interface CommandGroup {
-        // Why is every other private field and method defined, but this one isn't???
-        _globalEnabled: boolean;
-    }
-}
-
 /// The setting bindings are *in the provider* for some reason.
 /// This fixes SettingProvider to handle this properly.
-abstract class SaneSettingProvider extends commando.SettingProvider {
+export abstract class SaneSettingProvider extends commando.SettingProvider<structures.SettingsStructure> {
     public client!: commando.CommandoClient;
 
-    private listenerCommandPrefixChange: (guild: discord.Guild | string, value: string) => void;
-    private listenerCommandStatusChange: (guild: discord.Guild | string, group: commando.Command, enabled: boolean) => void;
-    private listenerGroupStatusChange: (guild: discord.Guild | string, group: commando.CommandGroup, enabled: boolean) => void;
+    private listenerCommandPrefixChange: (guild?: commando.CommandoGuild | null, prefix?: string | null) => void;
+    private listenerCommandStatusChange: (guild: discord.Guild | null, group: commando.Command, enabled: boolean) => void;
+    private listenerGroupStatusChange: (guild: discord.Guild | null, group: commando.CommandGroup, enabled: boolean) => void;
     private listenerReloadSettings: () => void;
 
     public constructor() {
         super();
-        this.listenerCommandPrefixChange = (guild: discord.Guild | string, value: string): void => {
-            this.set(guild, 'prefix', value);
+        this.listenerCommandPrefixChange = (guild?: commando.CommandoGuild | null, prefix?: string | null): void => {
+            this.set(guild ?? null, 'prefix', prefix);
         };
-        this.listenerCommandStatusChange = (guild: discord.Guild | string, group: commando.Command, enabled: boolean): void => {
-            this.set(guild, `cmd-${group.groupID}-${group.memberName}`, enabled);
+        this.listenerCommandStatusChange = (guild: discord.Guild | null, group: commando.Command, enabled: boolean): void => {
+            this.set(guild, `cmd-${group.groupId}-${group.memberName}`, enabled);
         };
-        this.listenerGroupStatusChange = (guild: discord.Guild | string, group: commando.CommandGroup, enabled: boolean): void => {
+        this.listenerGroupStatusChange = (guild: discord.Guild | null, group: commando.CommandGroup, enabled: boolean): void => {
             this.set(guild, `grp-${group.id}`, enabled);
         };
         this.listenerReloadSettings = (): void => {
@@ -54,13 +47,13 @@ abstract class SaneSettingProvider extends commando.SettingProvider {
     /// Pokes the awful internals because setEnabledIn fails for reasons
     private reloadSettings(): void {
         // -- Prefixes
-        this.client.commandPrefix = this.get('global', 'prefix', this.client.commandPrefix).toString();
+        this.client.prefix = this.get('global', 'prefix', this.client.prefix).toString();
         for (const guild of this.client.guilds.cache.values())
-            (guild as commando.CommandoGuild).commandPrefix = this.get(guild, 'prefix', null);
+            (guild as commando.CommandoGuild).prefix = this.get(guild, 'prefix', null);
         // -- Groups
         for (const group of this.client.registry.groups.values()) {
-            const settingName = `grp-${group.id}`;
-            group._globalEnabled = this.get('global', settingName, true);
+            const settingName = `grp-${group.id}` as const;
+            group['_globalEnabled'] = this.get('global', settingName, true) as boolean;
             for (const guild of this.client.guilds.cache.values()) {
                 const guildE = guild as unknown as { _groupsEnabled: Record<string, boolean> };
                 // Oh dear goodness.
@@ -72,8 +65,7 @@ abstract class SaneSettingProvider extends commando.SettingProvider {
         }
         // -- Commands
         for (const command of this.client.registry.commands.values()) {
-            const settingName = `cmd-${command.groupID}-${command.memberName}`;
-            // eslint-disable-next-line dot-notation
+            const settingName = `cmd-${command.groupId}-${command.memberName}` as const;
             command['_globalEnabled'] = this.get('global', settingName, true);
             for (const guild of this.client.guilds.cache.values()) {
                 const guildE = guild as unknown as { _commandsEnabled: Record<string, boolean> };

@@ -57,7 +57,7 @@ export default class JSONCommand extends CCBotCommand {
         this.command = json;
     }
 
-    public async run(message: commando.CommandoMessage, args: {args: string[]}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {args: string[]}): Promise<commando.CommandoMessageResponse> {
         if (this.command.nsfw && !nsfw(message.channel))
             return await message.say('That command is NSFW, and this is not an NSFW channel.');
 
@@ -73,7 +73,7 @@ export default class JSONCommand extends CCBotCommand {
         };
 
         // VM Arguments Init
-        if (args && args.args) {
+        if (args?.args) {
             // TODO: when can args.args be not an array?
             if (args.args.constructor === Array) {
                 vmContext.args = args.args;
@@ -93,29 +93,25 @@ export default class JSONCommand extends CCBotCommand {
             formatText = await runFormat(this.command.format || '', vm);
             // MO/JSON-supplied Embed
             if (this.command.embed)
-                vmContext.embed = await copyAndFormat(vm, this.command.embed) as discord.MessageEmbedOptions;
+                vmContext.embed = await copyAndFormat(vm, this.command.embed) as discord.APIEmbed;
         }
 
         // Message Options
-        const opts: discord.MessageOptions & { split: false } = { split: false };
+        const opts: discord.MessageCreateOptions & { split: false } = { split: false };
         let hasMeta = false;
-        {
-            // Embed
-            if (vmContext.embed) {
-                opts.embed = vmContext.embed;
-                hasMeta = true;
-            }
+
+        // Embed
+        if (vmContext.embed) {
+            opts.embeds = [vmContext.embed];
+            hasMeta = true;
         }
 
         // Side-effects
-        {
-            // Reactions to original command message
-            if (this.command.commandReactions) {
-                for (const react of this.command.commandReactions) {
-                    const emote = await userAwareGetEmote(this.client, message.author, message.guild || null, react);
-                    // @ts-ignore
-                    await message.react(emote instanceof discord.BaseGuildEmoji ? emote : emote.name);
-                }
+        // Reactions to original command message
+        if (this.command.commandReactions) {
+            for (const react of this.command.commandReactions) {
+                const emote = await userAwareGetEmote(this.client, message.author, message.guild || null, react);
+                await message.react(emote instanceof discord.GuildEmoji ? emote : emote!.name!);
             }
         }
 

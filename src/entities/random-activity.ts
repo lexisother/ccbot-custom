@@ -13,16 +13,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import { ActivityType } from 'discord.js';
 import {CCBot, CCBotEntity} from '../ccbot';
-import {randomArrayElement, silence} from '../utils';
+import {randomArrayElement} from '../utils';
 import {WatcherEntity, WatcherEntityData} from '../watchers';
 
-type ActivityType = ('PLAYING' | 'STREAMING' | 'LISTENING' | 'WATCHING');
 type ActivityStatus = ('online' | 'idle' | 'dnd' | 'invisible');
 
 export interface Activity {
     status?: ActivityStatus;
-    type: ActivityType;
+    type: Exclude<ActivityType, ActivityType.Custom>;
     name: string;
 }
 
@@ -40,19 +40,19 @@ class RandomActivityEntity extends WatcherEntity {
 
     public onKill(transferOwnership: boolean): void {
         if (!transferOwnership)
-            silence(this.client.user!.setPresence({
+            this.client.user?.setPresence({
                 status: 'online'
-            }));
+            });
     }
 
     public async watcherTick(): Promise<void> {
         const element = randomArrayElement(this.activities);
-        this.client.user!.setPresence({
+        this.client.user?.setPresence({
             status: element.status || 'online',
-            activity: {
+            activities: [{
                 type: element.type,
                 name: element.name
-            }
+            }]
         });
     }
 

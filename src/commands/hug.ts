@@ -22,7 +22,7 @@ import {userAwareGetEmote} from '../entities/user-datablock';
 /// For hugging.
 export default class HugCommand extends CCBotCommand {
     public constructor(client: CCBot) {
-        const opt = {
+        const opt: commando.CommandInfo = {
             name: 'hug',
             description: 'hugs another user, or set of users. end the list of people with a number to hug them multiple times. Designed by Emileyah, Monika!, Kumatsun & 20kdc.',
             group: 'general',
@@ -39,7 +39,7 @@ export default class HugCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandoMessage, args: {people: string[]}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {people: string[]}): Promise<commando.CommandoMessageResponse> {
         /*
          * Design contributions by:
          *  Emileyah: 208763015657553921
@@ -61,7 +61,7 @@ export default class HugCommand extends CCBotCommand {
             return await message.say('The physics of that are questionable, sadly...');
         const lines = [];
         const hugEmote = await userAwareGetEmote(this.client, message.author, message.guild || null, 'shizuHUG');
-        if (!emoteSafe(hugEmote, message.channel))
+        if (!hugEmote || !emoteSafe(hugEmote, message.channel))
             return await message.say('A configuration issue has made shizuHUG an NSFW emote, and this isn\'t an NSFW channel.');
         const hugEmoteString = hugEmote.toString().repeat(tryTimes);
         const alreadyHugged: Set<discord.User> = new Set();

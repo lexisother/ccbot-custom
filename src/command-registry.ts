@@ -16,7 +16,7 @@
 import * as commando from 'discord.js-commando';
 import JSONCommand from './commands/json';
 import HelpCommand from './commands/help';
-import {CCBot} from './ccbot';
+import { CCBot } from './ccbot';
 
 /// A modified version of the CommandRegistry.
 ///
@@ -34,7 +34,7 @@ export default class CCBotCommandRegistry extends commando.CommandoRegistry {
             this.loadJSONCommands();
         });
     }
-    public registerDefaults(): commando.CommandoRegistry {
+    public registerDefaults(): this {
         super.registerDefaults();
         this.loadJSONCommands();
         return this;
@@ -44,7 +44,7 @@ export default class CCBotCommandRegistry extends commando.CommandoRegistry {
         const commands = this.client.dynamicData.commands.data;
         for (const g in commands) {
             if (!this.groups.has(g))
-                this.registerGroup(g);
+                this.registerGroup({ id: g });
 
             const gcmd: commando.Command = new HelpCommand(this.client, g);
             this.allJSONCommands.push(gcmd);

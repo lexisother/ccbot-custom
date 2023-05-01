@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import { ActivityType } from 'discord.js';
 import {CCBot, CCBotEntity} from '../ccbot';
-import {silence} from '../utils';
 import {WatcherEntity, WatcherEntityData} from '../watchers';
 
 /// Updates a visible date every 10 seconds.
@@ -29,18 +29,18 @@ class DateActivityEntity extends WatcherEntity {
 
     public onKill(transferOwnership: boolean): void {
         if (!transferOwnership)
-            silence(this.client.user!.setPresence({
+            this.client.user?.setPresence({
                 status: 'online'
-            }));
+            });
     }
 
     public async watcherTick(): Promise<void> {
-        this.client.user!.setPresence({
+        this.client.user?.setPresence({
             status: 'online',
-            activity: {
-                type: 'WATCHING',
+            activities: [{
+                type: ActivityType.Watching,
                 name: new Date().toString()
-            }
+            }]
         });
     }
 }

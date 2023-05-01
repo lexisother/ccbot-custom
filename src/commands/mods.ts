@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
 import {ModDatabaseEntity, ToolDatabaseEntity} from '../entities/mod-database';
@@ -33,7 +32,7 @@ export class ModsToolsGetCommand extends CCBotCommand {
         this.tools = tools;
     }
 
-    public async run(message: commando.CommandoMessage): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage): Promise<commando.CommandoMessageResponse> {
         const entityName = !this.tools ? 'mod-database-manager' : 'tool-database-manager';
         const modDB = this.client.entities.getEntity<ModDatabaseEntity | ToolDatabaseEntity>(entityName);
         if (modDB) {

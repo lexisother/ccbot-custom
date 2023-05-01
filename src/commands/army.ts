@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
 import {emoteSafe, randomArrayElement} from '../utils';
@@ -44,7 +43,7 @@ const tooHighFailReasons = [
 export default class ArmyCommand extends CCBotCommand {
     public readonly emote: string | undefined;
     public constructor(client: CCBot, group: string, name: string, emote?: string) {
-        const args = [
+        const args: commando.ArgumentInfo[] = [
             {
                 key: 'width',
                 prompt: 'The breadth of the army? (A number.)',
@@ -75,13 +74,13 @@ export default class ArmyCommand extends CCBotCommand {
         this.emote = emote;
     }
 
-    public async run(message: commando.CommandoMessage, args: {width: number; height: number; emote?: string}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {width: number; height: number; emote?: string}): Promise<commando.CommandoMessageResponse> {
         // Awkward, but solves the issue.
         if (args.height === 0)
             args.height = args.width;
 
-        const emoteUse = await userAwareGetEmote(this.client, message.author, message.guild || null, (this.emote || args.emote)!);
-        if (!emoteSafe(emoteUse, message.channel))
+        const emoteUse = await userAwareGetEmote(this.client, message.author, message.guild, (this.emote || args.emote)!);
+        if (!emoteUse || !emoteSafe(emoteUse, message.channel))
             return message.say('they appear to have been transformed into something unsuitable for this channel');
 
         // Initial safety checks
@@ -107,7 +106,6 @@ export default class ArmyCommand extends CCBotCommand {
             line = `<:a:${emoteUse.id}>`.repeat(args.width);
         else
             line = `${emoteUse.name}`.repeat(args.width);
-
         for (let i = 0; i < args.height; i++)
             lines.push(line);
 

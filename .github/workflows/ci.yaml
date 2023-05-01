@@ -30,7 +30,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .eslintcache
-          key: ${{ runner.os }}-eslint-${{ hashFiles('.eslintrc.yml') }}-${{ hashFiles('**/package-lock.lock') }}
+          key: ${{ runner.os }}-eslint-${{ hashFiles('.eslintrc.yml') }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-eslint-${{ hashFiles('.eslintrc.yml') }}-
             ${{ runner.os }}-eslint-
@@ -39,7 +39,7 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Lint
-        run: pnpm lint
+        run: pnpm lint --cache
 
       - name: Build
         run: pnpm build

@@ -14,9 +14,11 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import * as discord from 'discord.js';
+import * as commando from 'discord.js-commando';
 import {CCBot} from './ccbot';
 import {emoteSafe, naturalComparison, nsfwGuild, silence} from './utils';
 import {EmoteRegistryDump} from './data/structures';
+import {RawEmojiData} from 'discord.js/typings/rawDataTypes'; // eslint-disable-line node/no-missing-import
 
 /// Determine if a bit of text looks like an emoji.
 /// Notably, it doesn't actually have to *be* an emoji,
@@ -32,6 +34,12 @@ function looksLikeAnEmoji(text: string): boolean {
     return true;
 }
 
+class CCBotEmoji extends discord.Emoji {
+  public constructor(client: CCBot<true>, emoji: RawEmojiData) {
+    super(client, emoji);
+  }
+}
+
 /// A registry of emotes.
 /// Not enough of a separatable process to qualify for Entity status,
 /// but it would be messy for this to remain in the main CCBot class.
@@ -39,7 +47,7 @@ export default class CCBotEmoteRegistry {
     public readonly client: CCBot;
 
     // NOTE: This does *not* include per-guild settings or global settings.
-    public globalEmoteRegistry: Map<string, discord.GuildEmoji> = new Map();
+    public globalEmoteRegistry: Map<string, commando.CommandoGuildEmoji> = new Map();
     public globalConflicts = 0;
 
     public constructor(c: CCBot) {
@@ -50,12 +58,13 @@ export default class CCBotEmoteRegistry {
     /// This is where all the emotes go.
     /// In case of conflict, it uses 'trust prioritization' to try and avoid any incidents.
     public updateGlobalEmoteRegistry(): void {
+        if (!this.client.isProviderReady()) return;
         // NOTE! The type here isn't totally right, but the constructor-checking condition prevents any issues.
         // It is possible for some truly evil JSON to set constructor, but it can't be set to Array legitimately.
         const safetyList: string[] | undefined = this.client.provider.get('global', 'emotePath', []);
         const globalAllowList: string[] | undefined = this.client.provider.get('global', 'emotes-registry-allowList');
         const globalBlockList: string[] | undefined = this.client.provider.get('global', 'emotes-registry-blockList');
-        const localRegistryCollation: Map<string, discord.GuildEmoji[]> = new Map();
+        const localRegistryCollation: Map<string, commando.CommandoGuildEmoji[]> = new Map();
         for (const guild of this.client.guilds.cache.values()) {
             const allowList: string[] | undefined = this.client.provider.get(guild, 'emotes-registry-allowList');
             const blockList: string[] | undefined = this.client.provider.get(guild, 'emotes-registry-blockList');
@@ -64,20 +73,20 @@ export default class CCBotEmoteRegistry {
                     continue;
                 if ((globalAllowList && !globalAllowList.includes(emote.id)) || (allowList && !allowList.includes(emote.id)))
                     continue;
-                let emotes: discord.GuildEmoji[] | undefined = localRegistryCollation.get(emote.name);
+                let emotes: commando.CommandoGuildEmoji[] | undefined = localRegistryCollation.get(emote.name!);
                 if (!emotes) {
                     emotes = [];
-                    localRegistryCollation.set(emote.name, emotes);
+                    localRegistryCollation.set(emote.name!, emotes);
                 }
-                emotes.push(emote);
+                emotes.push(emote as commando.CommandoGuildEmoji);
             }
         }
-        const localRegistry: Map<string, discord.GuildEmoji> = new Map();
+        const localRegistry: Map<string, commando.CommandoGuildEmoji> = new Map();
         // Start tallying conflicts
         this.globalConflicts = 0;
         for (const pair of localRegistryCollation) {
             // Conflict resolution
-            pair[1].sort((a: discord.GuildEmoji, b: discord.GuildEmoji): number => {
+            pair[1].sort((a: commando.CommandoGuildEmoji, b: commando.CommandoGuildEmoji): number => {
                 // Firstly, check position in safety list (if available)
                 // This code is written with safety margins to prevent crashing in case of user error.
                 if (safetyList && Array.isArray(safetyList)) {
@@ -123,6 +132,7 @@ export default class CCBotEmoteRegistry {
 
     /// Checks if an emote is overridden at guild or global level.
     public isOverride(guild: discord.Guild | null, name: string): 'guild' | 'global' | null {
+        if (!this.client.isProviderReady()) return null;
         // Local emote overrides
         if (guild) {
             const value = this.client.provider.get(guild, `emote-${name}`);
@@ -140,7 +150,9 @@ export default class CCBotEmoteRegistry {
     /// NOTE! Use userAwareGetEmote whenever possible.
     /// Emote grabbing should operate from the Writer's perspective,
     /// which means hug emote can be overridden by user, etc.
-    public getEmote(guild: discord.Guild | null, name: string): discord.GuildEmoji | discord.Emoji {
+    public getEmote(guild: discord.Guild | null, name: string): commando.CommandoGuildEmoji | discord.Emoji | null {
+        if (!this.client.isProviderReady()) return null;
+
         // Local emote overrides
         if (guild) {
             const value = this.client.provider.get(guild, `emote-${name}`);
@@ -177,7 +189,7 @@ export default class CCBotEmoteRegistry {
             }
         }
         // Is it a unicode emote?
-        return new discord.Emoji(this.client, {
+        return new CCBotEmoji(this.client, {
             animated: false,
             name: looksLikeAnEmoji(text) ? text : '❓',
             // id: null,
@@ -186,14 +198,15 @@ export default class CCBotEmoteRegistry {
 
     /// Lists all emote refs.
     public getEmoteRefs(guild: discord.Guild | null): string[] {
+        if (!this.client.isProviderReady()) return [];
         const a: string[] = [];
         for (const k of this.globalEmoteRegistry.keys())
             a.push(k);
-        for (const v of this.client.provider.get('global', 'emotes', []))
+        for (const v of this.client.provider.get('global', 'emotes', [] as string[]))
             if (!a.includes(v))
                 a.push(v.toString());
         if (guild)
-            for (const v of this.client.provider.get(guild, 'emotes', []))
+            for (const v of this.client.provider.get(guild, 'emotes', [] as string[]))
                 if (!a.includes(v))
                     a.push(v.toString());
         return a;
@@ -208,9 +221,9 @@ export default class CCBotEmoteRegistry {
                 data.list.push({
                     ref,
                     id: emote.id,
-                    name: emote.name,
+                    name: emote.name!,
                     requires_colons: emote.requiresColons || false,
-                    animated: emote.animated,
+                    animated: Boolean(emote.animated),
                     url: emote.url,
                     safe: emoteSafe(emote, null, true),
                     guild_id: emote.guild.id,

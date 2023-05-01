@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
 
@@ -30,7 +29,7 @@ export default class ReloadCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public run(message: commando.CommandoMessage): Promise<discord.Message|discord.Message[]> {
+    public run(message: commando.CommandoMessage): Promise<commando.CommandoMessageResponse> {
         this.client.dynamicData.commands.reload();
         return message.say('[nods] <:leaNOD:400777547991744523>');
     }

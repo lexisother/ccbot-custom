@@ -28,12 +28,12 @@ export default class InviteCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandoMessage): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage): Promise<commando.CommandoMessageResponse> {
         // https://github.com/discordjs/Commando/blob/v0.12.0/src/commands/base.js#L346-L357
         const {owners} = this.client;
 		const ownerList = owners ? owners.map((usr, i) => {
 			const or = i === owners.length - 1 && owners.length > 1 ? 'or ' : '';
-			return `${or}${discord.Util.escapeMarkdown(usr.username)}#${usr.discriminator}`;
+			return `${or}${discord.escapeMarkdown(usr.username)}#${usr.discriminator}`;
 		}).join(owners.length > 2 ? ', ' : ' ') : '';
         return await message.say(`Please contact ${ownerList || 'the bot owner'} and tell that you would like to add the bot to your server.`);
     }

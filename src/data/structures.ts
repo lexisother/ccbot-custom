@@ -29,7 +29,7 @@ export interface Command {
     // See formatter.ts for more details.
     format?: string;
     // Embed (Note, however, that all strings here are valid targets for format directives!)
-    embed?: discord.MessageEmbedOptions;
+    embed?: discord.EmbedData;
     // Reactions to the command.
     commandReactions?: string[];
 }
@@ -61,6 +61,30 @@ export interface Secrets {
 export interface GuildData {[setting: string]: unknown}
 
 export interface GuildIndex {[guildID: string]: GuildData}
+
+export interface SettingsStructure {
+    prefix?: string | null;
+    emotes?: string[];
+    emotePath?: string[];
+    farewell?: string;
+    greeting?: string;
+    quotes: string[];
+    lastQuote: number;
+    nsfw?: boolean;
+    'dm-greeting'?: string;
+    'emotes-registry-allowList'?: string[];
+    'emotes-registry-blockList'?: string[];
+    'emotes-sfw'?: string[];
+    'headerless-say'?: boolean;
+    'optin-roles'?: 'yes' | 'no' | 'both';
+    'starboard-channel': string;
+    [k: `channel-${string}`]: string;
+    [k: `cmd-${string}-${string}`]: boolean;
+    [k: `emote-${string}`]: number;
+    [k: `grp-${string}`]: boolean;
+    [k: `nsfw-${string}`]: boolean;
+    [k: `roles-${string}`]: string[];
+}
 
 /// see https://github.com/CCDirectLink/CCModDB
 export interface CCModDBPackagePage {

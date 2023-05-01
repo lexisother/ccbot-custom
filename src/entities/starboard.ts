@@ -35,10 +35,11 @@ class StarboardEntity extends CCBotEntity {
     channel: discord.Snowflake,
     guild: discord.Snowflake,
     add: boolean,
-  ) {
+  ): Promise<void> {
+    if (!this.client.isProviderReady()) return;
     if (guild !== this.guild.id) return;
-    const gChannel = this.client.provider.get(this.guild, 'starboard-channel', 0);
-    if (gChannel === 0) return;
+    const gChannel = this.client.provider.get(this.guild, 'starboard-channel', "0");
+    if (gChannel === "0") return;
 
     // Ye who tread here, tread with utmost care.
     if (emote.name === '⭐') {
@@ -82,7 +83,10 @@ class StarboardEntity extends CCBotEntity {
         this.toSaveData();
       }
       if (this.messages[message] >= 2) {
+<<<<<<< HEAD
         console.log('FAULTY HIT');
+=======
+>>>>>>> update
         let starboardMessage = starboardChannel.messages.cache.get(
           this.starBinds[message],
         ) as discord.Message;

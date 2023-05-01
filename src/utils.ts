@@ -21,12 +21,13 @@ import * as url from 'url';
 
 // dmitmel: Needed for running tests because of Commando extensions
 import './ccbot';
+import { CCBot } from './ccbot'; // eslint-disable-line
 
 /// Alias that's simpler to access
-export const mdEsc = discord.Util.escapeMarkdown;
+export const mdEsc = discord.escapeMarkdown;
 
 /// Returns if a given channel is appropriate for NSFW information.
-export function nsfw(channel: discord.Channel): boolean {
+export function nsfw(channel: discord.Channel): channel is (discord.TextChannel & { nsfw: true }) | discord.DMChannel {
     if (channel instanceof discord.TextChannel) {
         if (channel.guild.verified)
             return false;
@@ -38,7 +39,8 @@ export function nsfw(channel: discord.Channel): boolean {
 }
 
 /// Returns if a given guild is considered a liability SFW-wise.
-export function nsfwGuild(client: commando.CommandoClient, guild: discord.Guild): boolean {
+export function nsfwGuild(client: CCBot, guild: discord.Guild): boolean {
+    if (!client.isProviderReady()) return false;
     if (client.provider.get('global', `nsfw-${guild.id}`, false))
         return true;
     const val = client.provider.get(guild, 'nsfw', true);
@@ -47,12 +49,13 @@ export function nsfwGuild(client: commando.CommandoClient, guild: discord.Guild)
 
 /// Ensures an emote is safe to use. If 'sfw' is set to true, ignores channel NSFWness.
 export function emoteSafe(emote: discord.Emoji, channel: discord.Channel | null, sfw?: boolean): boolean {
+    // otherwise, let's reason this out:
+    const client = emote.client as CCBot;
+    if (!client.isProviderReady()) return false;
     sfw = sfw || false;
     // if channel is NSFW, it's always safe to use it here
     if (!sfw && channel != null && nsfw(channel))
         return true;
-    // otherwise, let's reason this out:
-    const client = emote.client as commando.CommandoClient;
     if (!(emote instanceof discord.GuildEmoji))
         return true; // No guild? Discord built-in, can't be lewd
     const { guild } = emote;
@@ -66,27 +69,28 @@ export function emoteSafe(emote: discord.Emoji, channel: discord.Channel | null,
             return true;
     }
     // Failing this, *local* NSFW flag means guild emotes should be considered NSFW by default
-    if (client.provider.get(guild, 'nsfw', true))
+    if (client.provider.get(guild, 'nsfw', false))
         return false;
     // Failing this, we have no reason to believe the emote is NSFW
     return true;
 }
 
 export type GuildTextBasedChannel = discord.TextChannel | discord.NewsChannel;
-export function isGuildChannelTextBased(channel: discord.GuildChannel): channel is GuildTextBasedChannel {
+export function isGuildChannelTextBased(channel: discord.GuildBasedChannel | discord.GuildChannel): channel is GuildTextBasedChannel {
     return channel instanceof discord.TextChannel || channel instanceof discord.NewsChannel;
 }
 
 export type TextBasedChannel = discord.DMChannel | GuildTextBasedChannel;
 export function isChannelTextBased(channel: discord.Channel): channel is TextBasedChannel {
-    return channel instanceof discord.DMChannel || isGuildChannelTextBased(channel as discord.GuildChannel);
+    return channel instanceof discord.DMChannel || isGuildChannelTextBased(channel as discord.GuildBasedChannel);
 }
 
-export function getGuildTextChannel(client: commando.CommandoClient, guild: discord.Guild, id: string): GuildTextBasedChannel | undefined {
+export function getGuildTextChannel(client: CCBot, guild: discord.Guild, id: string): GuildTextBasedChannel | undefined {
+    if (!client.isProviderReady()) return undefined;
     const guildChannel = client.provider.get(guild, `channel-${id}`, '');
-    const result = guild.channels.cache.find((c: discord.GuildChannel): boolean => {
-        return (c.id == guildChannel) || (c.name == guildChannel);
-    });
+    const result = guild.channels.cache.find((c: discord.GuildBasedChannel) => {
+        return (c.id == guildChannel) || (c.name == guildChannel)
+    }) as unknown as discord.GuildChannel;
     if (!result || !isGuildChannelTextBased(result))
         return undefined;
     return result;
@@ -123,10 +127,10 @@ export function naturalComparison(a: string, b: string): number {
 
 /// Checks if a user is at the local guild's bot-administrative level.
 export function localAdminCheck(t: commando.CommandoMessage): boolean {
-    if (t.client.owners.includes(t.author))
+    if (t.client.owners!.includes(t.author))
         return true;
     if (t.member)
-        if (t.member.hasPermission('ADMINISTRATOR'))
+        if (t.member.permissions.has("Administrator"))
             return true;
     return false;
 }
@@ -147,7 +151,7 @@ export function findMemberByRef(t: discord.Guild | undefined | null, ref: string
 
     const candidates: discord.GuildMember[] = t.members.cache.filter((v: discord.GuildMember): boolean => {
         return (v.user.username.includes(ref)) || (ref == (`${v.user.username}#${v.user.discriminator}`)) || (ref == v.user.id) || (ref == v.nickname);
-    }).array();
+    }).toJSON();
     if (candidates.length == 1)
         return candidates[0];
     return null;
