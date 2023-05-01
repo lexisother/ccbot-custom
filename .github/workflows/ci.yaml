@@ -11,28 +11,32 @@ jobs:
 
       - uses: actions/setup-node@v1
         with:
-          node-version: '16.x'
+          node-version: '19.x'
+      - run: npm i -g pnpm
 
-      - uses: actions/cache@v2
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
         with:
-          path: |
-            ~/.npm
-            node_modules
-          key: |
-            ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-npm-
+            ${{ runner.os }}-pnpm-store-
 
       - name: ESLint cache
         uses: actions/cache@v2
         with:
           path: .eslintcache
-          key: ${{ runner.os }}-eslint-${{ hashFiles('.eslintrc.yml') }}-${{ hashFiles('**/package-lock.lock') }}
+          key: ${{ runner.os }}-eslint-${{ hashFiles('.eslintrc.yml') }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-eslint-${{ hashFiles('.eslintrc.yml') }}-
             ${{ runner.os }}-eslint-
 
-      - run: npm ci
-      - run: npm run build
-      - run: npm run test
-      - run: npm run lint --cache
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm test
+      - run: pnpm lint --cache
