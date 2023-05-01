@@ -47,7 +47,7 @@ export abstract class SaneSettingProvider extends commando.SettingProvider<struc
     /// Pokes the awful internals because setEnabledIn fails for reasons
     private reloadSettings(): void {
         // -- Prefixes
-        this.client.prefix = this.get('global', 'prefix', this.client.prefix)!.toString();
+        this.client.prefix = this.get('global', 'prefix', this.client.prefix).toString();
         for (const guild of this.client.guilds.cache.values())
             (guild as commando.CommandoGuild).prefix = this.get(guild, 'prefix', null);
         // -- Groups
