@@ -83,10 +83,6 @@ class StarboardEntity extends CCBotEntity {
         this.toSaveData();
       }
       if (this.messages[message] >= 2) {
-<<<<<<< HEAD
-        console.log('FAULTY HIT');
-=======
->>>>>>> update
         let starboardMessage = starboardChannel.messages.cache.get(
           this.starBinds[message],
         ) as discord.Message;
