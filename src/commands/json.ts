@@ -73,7 +73,7 @@ export default class JSONCommand extends CCBotCommand {
         };
 
         // VM Arguments Init
-        if (args && args.args) {
+        if (args?.args) {
             // TODO: when can args.args be not an array?
             if (args.args.constructor === Array) {
                 vmContext.args = args.args;
@@ -99,22 +99,19 @@ export default class JSONCommand extends CCBotCommand {
         // Message Options
         const opts: discord.MessageCreateOptions & { split: false } = { split: false };
         let hasMeta = false;
-        {
-            // Embed
-            if (vmContext.embed) {
-                opts.embeds = [vmContext.embed];
-                hasMeta = true;
-            }
+
+        // Embed
+        if (vmContext.embed) {
+            opts.embeds = [vmContext.embed];
+            hasMeta = true;
         }
 
         // Side-effects
-        {
-            // Reactions to original command message
-            if (this.command.commandReactions) {
-                for (const react of this.command.commandReactions) {
-                    const emote = await userAwareGetEmote(this.client, message.author, message.guild || null, react);
-                    await message.react(emote instanceof discord.GuildEmoji ? emote : emote!.name!);
-                }
+        // Reactions to original command message
+        if (this.command.commandReactions) {
+            for (const react of this.command.commandReactions) {
+                const emote = await userAwareGetEmote(this.client, message.author, message.guild || null, react);
+                await message.react(emote instanceof discord.GuildEmoji ? emote : emote!.name!);
             }
         }
 

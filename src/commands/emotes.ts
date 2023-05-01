@@ -16,7 +16,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {TextBasedChannel, emoteSafe, isGuildChannelTextBased, localAdminCheck, mdEsc, naturalComparison} from '../utils';
+import {emoteSafe, isGuildChannelTextBased, localAdminCheck, mdEsc, naturalComparison} from '../utils';
 import {PageSwitcherOutputElement, outputElements} from '../entities/page-switcher';
 import {userAwareGetEmote} from '../entities/user-datablock';
 

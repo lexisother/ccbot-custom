@@ -15,7 +15,6 @@
 
 import { ActivityType } from 'discord.js';
 import {CCBot, CCBotEntity} from '../ccbot';
-import {silence} from '../utils';
 import {WatcherEntity, WatcherEntityData} from '../watchers';
 
 /// Updates a visible date every 10 seconds.

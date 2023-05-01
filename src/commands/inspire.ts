@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
 

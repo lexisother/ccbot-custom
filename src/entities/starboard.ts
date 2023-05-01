@@ -35,7 +35,7 @@ class StarboardEntity extends CCBotEntity {
     channel: discord.Snowflake,
     guild: discord.Snowflake,
     add: boolean,
-  ) {
+  ): Promise<void> {
     if (!this.client.isProviderReady()) return;
     if (guild !== this.guild.id) return;
     const gChannel = this.client.provider.get(this.guild, 'starboard-channel', "0");

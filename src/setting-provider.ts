@@ -66,7 +66,6 @@ export abstract class SaneSettingProvider extends commando.SettingProvider<struc
         // -- Commands
         for (const command of this.client.registry.commands.values()) {
             const settingName = `cmd-${command.groupId}-${command.memberName}` as const;
-            // eslint-disable-next-line dot-notation
             command['_globalEnabled'] = this.get('global', settingName, true);
             for (const guild of this.client.guilds.cache.values()) {
                 const guildE = guild as unknown as { _commandsEnabled: Record<string, boolean> };

@@ -149,7 +149,7 @@ export abstract class Entity<C> {
     /// Called just after the entity was killed.
     /// If the entity is maintaining a state, like an activity, this is where it would be reset.
     /// If 'transferOwnership' is true, the entity is being replaced, so it shouldn't do anything liable to cause race conditions.
-    public onKill(transferOwnership: boolean): void {
+    public onKill(_transferOwnership: boolean): void {
 
     }
 

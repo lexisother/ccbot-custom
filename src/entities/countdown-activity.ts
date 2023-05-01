@@ -15,7 +15,6 @@
 
 import { ActivityType } from 'discord.js';
 import {CCBot, CCBotEntity} from '../ccbot';
-import {silence} from '../utils';
 import {WatcherEntity, WatcherEntityData} from '../watchers';
 
 export interface CountdownActivityData extends WatcherEntityData {

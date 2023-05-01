@@ -18,7 +18,7 @@ import * as commando from 'discord.js-commando';
 import {CCBot} from './ccbot';
 import {emoteSafe, naturalComparison, nsfwGuild, silence} from './utils';
 import {EmoteRegistryDump} from './data/structures';
-import {RawEmojiData} from 'discord.js/typings/rawDataTypes';
+import {RawEmojiData} from 'discord.js/typings/rawDataTypes'; // eslint-disable-line node/no-missing-import
 
 /// Determine if a bit of text looks like an emoji.
 /// Notably, it doesn't actually have to *be* an emoji,
@@ -35,7 +35,7 @@ function looksLikeAnEmoji(text: string): boolean {
 }
 
 class CCBotEmoji extends discord.Emoji {
-  constructor(client: CCBot<true>, emoji: RawEmojiData) {
+  public constructor(client: CCBot<true>, emoji: RawEmojiData) {
     super(client, emoji);
   }
 }
@@ -223,7 +223,7 @@ export default class CCBotEmoteRegistry {
                     id: emote.id,
                     name: emote.name!,
                     requires_colons: emote.requiresColons || false,
-                    animated: !!emote.animated,
+                    animated: Boolean(emote.animated),
                     url: emote.url,
                     safe: emoteSafe(emote, null, true),
                     guild_id: emote.guild.id,

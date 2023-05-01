@@ -21,7 +21,7 @@
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",
     "chai": "^4.3.0",
-    "eslint": "^7.20.0",
+    "eslint": "^8.39.0",
     "eslint-config-dmitmel": "github:dmitmel/eslint-config-dmitmel",
     "eslint-plugin-node": "^11.1.0",
     "mocha": "^9.0.0",

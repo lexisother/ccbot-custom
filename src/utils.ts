@@ -21,7 +21,7 @@ import * as url from 'url';
 
 // dmitmel: Needed for running tests because of Commando extensions
 import './ccbot';
-import { CCBot } from './ccbot';
+import { CCBot } from './ccbot'; // eslint-disable-line
 
 /// Alias that's simpler to access
 export const mdEsc = discord.escapeMarkdown;
@@ -86,7 +86,7 @@ export function isChannelTextBased(channel: discord.Channel): channel is TextBas
 }
 
 export function getGuildTextChannel(client: CCBot, guild: discord.Guild, id: string): GuildTextBasedChannel | undefined {
-    if (!client.isProviderReady()) return;
+    if (!client.isProviderReady()) return undefined;
     const guildChannel = client.provider.get(guild, `channel-${id}`, '');
     const result = guild.channels.cache.find((c: discord.GuildBasedChannel) => {
         return (c.id == guildChannel) || (c.name == guildChannel)

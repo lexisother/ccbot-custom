@@ -24,7 +24,7 @@ export function convertRoleGroup(client: CCBot<true>, guild: discord.Guild, text
 }
 
 /// Converts role names to role IDs.
-export function convertRoles(client: commando.CommandoClient, guild: discord.Guild, src: string[], permissive: boolean): string[] | null {
+export function convertRoles(_client: commando.CommandoClient, guild: discord.Guild, src: string[], permissive: boolean): string[] | null {
     const roleIDs: string[] = [];
     for (const v of src) {
         const vr = guild.roles.cache.find((r: discord.Role): boolean => {

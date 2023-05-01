@@ -127,7 +127,7 @@ async function runLocalSettingTransaction(provider: SaneSettingProvider, context
     return null;
 }
 
-function isAuthorized(message: commando.CommandoMessage, operation: SettingsOperation, context: SettingsContext, contextInstance: string): boolean {
+function isAuthorized(message: commando.CommandoMessage, _operation: SettingsOperation, context: SettingsContext, contextInstance: string): boolean {
     // Validate instance
     if ((context == SettingsContext.Global) && (contextInstance != 'global'))
         return false;

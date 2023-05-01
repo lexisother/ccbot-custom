@@ -15,7 +15,7 @@
 
 import { ActivityType } from 'discord.js';
 import {CCBot, CCBotEntity} from '../ccbot';
-import {randomArrayElement, silence} from '../utils';
+import {randomArrayElement} from '../utils';
 import {WatcherEntity, WatcherEntityData} from '../watchers';
 
 type ActivityStatus = ('online' | 'idle' | 'dnd' | 'invisible');

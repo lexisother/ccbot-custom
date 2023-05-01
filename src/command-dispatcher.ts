@@ -51,7 +51,6 @@ function initCCBotCommandoMessage(
 
     /// Prepares to edit a response.
     /// This modified version cleans up after whatever was happening before.
-    // eslint-disable-next-line dot-notation
     self['editResponse'] = async function editResponse(
         reply: commando.CommandoMessage | commando.CommandoMessage[],
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -76,7 +75,6 @@ function initCCBotCommandoMessage(
                 b.options = { embed: undefined };
             }
         }
-        // eslint-disable-next-line dot-notation
         return commando.CommandoMessage.prototype['editResponse'].call(this, reply, b) as unknown as commando.CommandoMessage | commando.CommandoMessage[];
     };
 
