@@ -26,6 +26,7 @@ import {EmoteCommand, ListEmotesCommand, ReactCommand} from './commands/emotes';
 import {ModsToolsGetCommand} from './commands/mods';
 import SayCommand from './commands/say';
 import InviteCommand from './commands/invite';
+import PluginsGetCommand from './commands/vdplugins';
 import {CCBot} from './ccbot';
 
 /// Registers all the commands. (More or less.)
@@ -72,6 +73,7 @@ export default function registerAllCommands(cr: CCBot): void {
         .registerCommand(new PurgeCommand(cr))
         .registerCommand(new InspireCommand(cr))
         .registerCommand(new InviteCommand(cr))
+        .registerCommand(new PluginsGetCommand(cr))
 
         .registerGroup({ id: 'roles' })
         .registerCommand(new RolesAddCommand(cr))
