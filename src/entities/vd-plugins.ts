@@ -13,7 +13,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import * as discord from 'discord.js';
 import { CCBot, CCBotEntity } from '../ccbot';
+import { EntityData } from '../entity-registry';
 import { getJSON } from '../utils';
 import { WatcherEntity, WatcherEntityData } from '../watchers';
 
@@ -82,6 +84,118 @@ export class PluginDatabaseEntity extends VDPDBViewerEntity<PluginDB> {
   }
 }
 
-export default async function load(c: CCBot, data: VDPDBViewerEntityData): Promise<CCBotEntity> {
+// QuickLinks data
+export interface VDQLEntityData extends EntityData {
+  guild: string;
+  // RegExp in a string, e.g. "\s+"
+  tags: string;
+}
+export class QuickLinksEntity extends CCBotEntity {
+  private guild: string;
+  private tags: RegExp;
+  private messageListener: (m: discord.Message) => void;
+
+  public constructor(c: CCBot, data: VDQLEntityData) {
+    super(c, 'quicklinks-listener', data);
+    this.guild = data.guild;
+    this.tags = RegExp(data.tags) ?? /\[\[(.*?)\]\]/;
+
+    this.messageListener = (m: discord.Message): void => {
+      if (this.killed) return;
+      if (m.guildId !== this.guild) return;
+
+      if (!(this.tags instanceof RegExp)) {
+        console.error(`Guild ${m.guildId} has quicklinks misconfigured`);
+        this.tags = /\[\[(.*?)\]\]/;
+      }
+
+      const matches = m.content.match(this.tags);
+      if (matches == null || !matches[1]) return;
+
+      const pluginDB =
+        this.client.entities.getEntity<PluginDatabaseEntity>('plugin-database-manager');
+      if (pluginDB) {
+        if (pluginDB.plugins.length > 0) {
+          let dbPlugins = pluginDB.plugins;
+
+          const normalize = (s: string): string => s.toLowerCase().trim().replace(/\s+/g, ' ');
+          const query = normalize(matches[1]);
+          if (!query) return;
+
+          dbPlugins = pluginDB.plugins
+            .filter((x) =>
+              [x.name, x.description, ...x.authors.map((x) => x.name)].some((x) =>
+                normalize(x).includes(query),
+              ),
+            )
+            .sort((a, b) => {
+              const aNameMatch = normalize(a.name).includes(query);
+              const bNameMatch = normalize(b.name).includes(query);
+              if (aNameMatch && !bNameMatch) return -1;
+              if (!aNameMatch && bNameMatch) return 1;
+
+              const aNameStartsWith = normalize(a.name).startsWith(query);
+              const bNameStartsWith = normalize(b.name).startsWith(query);
+              if (aNameStartsWith && !bNameStartsWith) return -1;
+              if (!aNameStartsWith && bNameStartsWith) return 1;
+
+              const aDescMatch = normalize(a.description).includes(query);
+              const bDescMatch = normalize(b.description).includes(query);
+              if (aDescMatch && !bDescMatch) return -1;
+
+              return 0;
+            });
+
+          if (!dbPlugins[0]) {
+            m.reply('No plugins found with that query');
+            return;
+          }
+
+          let plugin = dbPlugins[0];
+          m.reply({
+            embeds: [
+              {
+                title: plugin.name,
+                description: plugin.description,
+                fields: [
+                  {
+                    name: 'Author(s)',
+                    value: plugin.authors.map((e) => e.name).join(', '),
+                  },
+                ],
+              },
+            ],
+          });
+        }
+      } else {
+        m.reply(
+          "ooo! you haven't started the plugin database entity! (no plugin-database-manager found)",
+        );
+      }
+    };
+    this.client.on('messageCreate', this.messageListener);
+  }
+
+  public toSaveData(): VDQLEntityData {
+    return Object.assign(super.toSaveData(), {
+      guild: this.guild,
+      tags: this.tags.toString().slice(1, -1),
+    });
+  }
+
+  public onKill(transferOwnership: boolean): void {
+    super.onKill(transferOwnership);
+    this.client.removeListener('messageCreate', this.messageListener);
+  }
+}
+
+export async function loadPluginDatabase(
+  c: CCBot,
+  data: VDPDBViewerEntityData,
+): Promise<CCBotEntity> {
   return new PluginDatabaseEntity(c, data);
+}
+
+export async function loadQuicklinks(c: CCBot, data: VDQLEntityData): Promise<CCBotEntity> {
+  return new QuickLinksEntity(c, data);
 }

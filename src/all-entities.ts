@@ -28,7 +28,7 @@ import {newTwitchStreamProviderLoader} from './entities/twitch-stream-provider';
 import {newYouTubeStreamProviderLoader} from './entities/youtube-stream-provider';
 import loadCountdownActivity from './entities/countdown-activity';
 import loadStarboard from './entities/starboard';
-import loadPluginDatabase from './entities/vd-plugins';
+import {loadPluginDatabase, loadQuicklinks} from './entities/vd-plugins';
 import {CCBot} from './ccbot';
 
 /// Registers all the entities. (More or less.)
@@ -48,7 +48,8 @@ export default function registerAllEntities(cr: CCBot, twitchClientId: string | 
         .registerEntityType('user-datablock', loadUserDatablock)
         .registerEntityType('countdown-activity', loadCountdownActivity)
         .registerEntityType('starboard', loadStarboard)
-        .registerEntityType('plugin-database', loadPluginDatabase);
+        .registerEntityType('plugin-database', loadPluginDatabase)
+        .registerEntityType('plugin-quicklinks', loadQuicklinks);
     if (twitchClientId)
         cr.entities.registerEntityType('twitch-stream-provider', newTwitchStreamProviderLoader(twitchClientId));
     if (ytClientId)
