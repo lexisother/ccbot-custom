@@ -66,7 +66,7 @@ export function wrapFunc(name: string, argCount: number, fun: (args: Value[], sc
 export class VMScope {
     public readonly vm: VM;
     public readonly parent: VMScope | null;
-    public readonly functions: Map<string, VMFunction> = new Map();
+    public readonly functions = new Map<string, VMFunction>();
 
     public constructor(vm: VM, parent: VMScope | null) {
         this.vm = vm;

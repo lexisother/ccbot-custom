@@ -82,7 +82,7 @@ class GreeterEntity extends CCBotEntity {
         this.client.removeListener('guildMemberRemove', this.memberRemoveListener);
     }
 
-    private doInitialGreeting(c: CCBot, m: discord.GuildMember, greet = false) {
+    private doInitialGreeting(c: CCBot, m: discord.GuildMember, greet = false): void {
         if (this.killed || !c.isProviderReady())
             return
 

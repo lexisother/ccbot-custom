@@ -64,7 +64,7 @@ export default class HugCommand extends CCBotCommand {
         if (!hugEmote || !emoteSafe(hugEmote, message.channel))
             return await message.say('A configuration issue has made shizuHUG an NSFW emote, and this isn\'t an NSFW channel.');
         const hugEmoteString = hugEmote.toString().repeat(tryTimes);
-        const alreadyHugged: Set<discord.User> = new Set();
+        const alreadyHugged = new Set<discord.User>();
         for (let i = 0; i < effectiveLength; i++) {
             const member = findMemberByRef(message.guild || null, args.people[i]);
             if (member) {
