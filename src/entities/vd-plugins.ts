@@ -14,6 +14,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import * as discord from 'discord.js';
+import { ButtonStyle, ComponentType } from 'discord.js';
 import { CCBot, CCBotEntity } from '../ccbot';
 import { EntityData } from '../entity-registry';
 import { getJSON } from '../utils';
@@ -156,6 +157,19 @@ export class QuickLinksEntity extends CCBotEntity {
                   {
                     name: 'Author(s)',
                     value: plugin.authors.map((e) => e.name).join(', '),
+                  },
+                ],
+              },
+            ],
+            components: [
+              {
+                type: ComponentType.ActionRow,
+                components: [
+                  {
+                    type: ComponentType.Button,
+                    label: 'Install Plugin',
+                    url: `https://vd-plugins.github.io/proxy/${plugin.vendetta.original}`,
+                    style: ButtonStyle.Link,
                   },
                 ],
               },
