@@ -91,9 +91,9 @@ export interface VDQLEntityData extends EntityData {
   tags: string;
 }
 export class QuickLinksEntity extends CCBotEntity {
-  private guild: string;
-  private tags: RegExp;
-  private messageListener: (m: discord.Message) => void;
+  private readonly guild: string;
+  private readonly tags: RegExp;
+  private readonly messageListener: (m: discord.Message) => void;
 
   public constructor(c: CCBot, data: VDQLEntityData) {
     super(c, 'quicklinks-listener', data);
@@ -103,11 +103,6 @@ export class QuickLinksEntity extends CCBotEntity {
     this.messageListener = (m: discord.Message): void => {
       if (this.killed) return;
       if (m.guildId !== this.guild) return;
-
-      if (!(this.tags instanceof RegExp)) {
-        console.error(`Guild ${m.guildId} has quicklinks misconfigured`);
-        this.tags = /\[\[(.*?)\]\]/;
-      }
 
       const matches = m.content.match(this.tags);
       if (matches == null || !matches[1]) return;

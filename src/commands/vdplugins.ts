@@ -80,10 +80,10 @@ export default class PluginsGetCommand extends CCBotCommand {
         }
 
         const plugins: string[] = dbPlugins.map((plugin) => {
-            const authors = plugin.authors.map(e => e.name).join(", ")
+          const authors = plugin.authors.map((e) => e.name).join(', ');
           const components: string[] = [`**${plugin.name}** (by ${authors})`];
           if (plugin.description) components.push(plugin.description);
-          components.push(`[Link](${plugin.url})`);
+          components.push(`[Install](${plugin.url})`);
           components.push('');
           return components.join('\n');
         });
