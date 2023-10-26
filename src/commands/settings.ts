@@ -105,6 +105,9 @@ async function runLocalSettingTransaction(provider: SaneSettingProvider, context
             maxLength = limitLocalChannelName;
     } else if (name === "starboard-channel") { // "channelid"
         maxLength = 20;
+    } else if (name === "quicklinks-blacklist") {
+        if ((value === undefined) || (Array.isArray(value)))
+            maxLength = limitLocalCommand;
     }
     if (!maxLength)
         return 'The setting was not recognized. If this setting is readable, keep in mind that some documented settings are automatically maintained.';

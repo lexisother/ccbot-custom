@@ -105,9 +105,11 @@ export class QuickLinksEntity extends CCBotEntity {
     this.blacklist = data.blacklist ?? [];
 
     this.messageListener = (m: discord.Message): void => {
+      if (!this.client.isProviderReady()) return;
       if (this.killed) return;
       if (m.guildId !== this.guild) return;
-      if (this.blacklist.includes(m.channelId)) return;
+      const blacklist: string[] = this.client.provider.get(this.guild, 'quicklinks-blacklist', []);
+      if (blacklist.includes(m.channelId)) return;
 
       const matches = m.content.match(this.tags);
       if (matches == null || !matches[1]) return;
