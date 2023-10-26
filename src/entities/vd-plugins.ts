@@ -90,20 +90,24 @@ export interface VDQLEntityData extends EntityData {
   guild: string;
   // RegExp in a string, e.g. "\s+"
   tags: string;
+  blacklist: string[];
 }
 export class QuickLinksEntity extends CCBotEntity {
   private readonly guild: string;
   private readonly tags: RegExp;
+  private readonly blacklist: string[];
   private readonly messageListener: (m: discord.Message) => void;
 
   public constructor(c: CCBot, data: VDQLEntityData) {
     super(c, 'quicklinks-listener', data);
     this.guild = data.guild;
     this.tags = RegExp(data.tags) ?? /\[\[(.*?)\]\]/;
+    this.blacklist = data.blacklist ?? [];
 
     this.messageListener = (m: discord.Message): void => {
       if (this.killed) return;
       if (m.guildId !== this.guild) return;
+      if (this.blacklist.includes(m.channelId)) return;
 
       const matches = m.content.match(this.tags);
       if (matches == null || !matches[1]) return;
@@ -189,6 +193,7 @@ export class QuickLinksEntity extends CCBotEntity {
     return Object.assign(super.toSaveData(), {
       guild: this.guild,
       tags: this.tags.toString().slice(1, -1),
+      blacklist: this.blacklist,
     });
   }
 
