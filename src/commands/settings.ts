@@ -103,10 +103,13 @@ async function runLocalSettingTransaction(provider: SaneSettingProvider, context
     } else if ((name === 'channel-greet') || (name === 'channel-info') || (name === 'channel-syslog') || (name === 'channel-editlog')) {
         if ((value === undefined) || (typeof value === 'string'))
             maxLength = limitLocalChannelName;
-    } else if (name === "starboard-channel") { // "channelid"
+    } else if (name === 'starboard-channel') { // "channelid"
         maxLength = 20;
-    } else if (name === "quicklinks-blacklist") {
+    } else if (name === 'quicklinks-blacklist') {
         if ((value === undefined) || (Array.isArray(value)))
+            maxLength = limitLocalCommand;
+    } else if (name === 'command-blacklist') {
+        if ((value === undefined) || (typeof value === 'object'))
             maxLength = limitLocalCommand;
     }
     if (!maxLength)
@@ -161,7 +164,7 @@ function isAuthorizedToChange(message: commando.CommandoMessage, name: string): 
     if (message.client.isOwner(message.author))
         return true;
     // Owner-only settings
-    if (name === 'nsfw')
+    if (name === 'nsfw' || name === 'command-blacklist')
         return false;
     // ...
 

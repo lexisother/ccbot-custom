@@ -79,6 +79,7 @@ export interface SettingsStructure {
     'optin-roles'?: 'yes' | 'no' | 'both';
     'starboard-channel': string;
     'quicklinks-blacklist'?: string[];
+    'command-blacklist'?: Record<string, string[]>;
     [k: `channel-${string}`]: string;
     [k: `cmd-${string}-${string}`]: boolean;
     [k: `emote-${string}`]: number;

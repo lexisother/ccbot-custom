@@ -89,6 +89,36 @@ export default class CCBotCommandDispatcher extends commando.CommandDispatcher {
         super(c, r);
     }
 
+    // This function is a bit of a mess.
+    // Also, if there's as little as a slight irregularity (e.g. no command on
+    // the command message) within anything we need for our functionality, we
+    // bail out and let Commando handle everything like it normally would.
+    // Let's hope this doesn't cause major instabilities in how commands are
+    // executed...
+    protected async handleMessage(message: commando.CommandoMessage, oldMessage?: discord.Message): Promise<void> {
+        // In DM or provider is somehow not ready? Bail.
+        if (message.channel.isDMBased()) return super.handleMessage(message, oldMessage);
+        if (!this.client.isProviderReady()) return super.handleMessage(message, oldMessage);
+
+        // No CommandoMessage or command to trigger? Bail.
+        let cmdMsg = this.parseMessage(message);
+        if (!cmdMsg) return super.handleMessage(message, oldMessage);
+        if (!cmdMsg.command) return super.handleMessage(message, oldMessage);
+
+        // No blacklist? Bail.
+        const blacklist = this.client.provider.get(message.guild, 'command-blacklist');
+        if (!blacklist) return super.handleMessage(message, oldMessage);
+
+        // No blacklisted IDs for this command or current ID isn't blacklisted? Bail.
+        let ids = blacklist[cmdMsg.command.name]
+        if (!ids) return super.handleMessage(message, oldMessage);
+        if (!ids.includes(message.channelId)) return super.handleMessage(message, oldMessage);
+
+        // Logically speaking, `undefined` should only be returned if the
+        // command is indeed blacklisted for the current channel.
+        return undefined;
+    }
+
     private ['parseMessage' as string](message: discord.Message): commando.CommandoMessage | null {
         // Stage 1: Prefix removal, cleanup
         let text: string = message.content;
