@@ -26,6 +26,15 @@ import { CCBot } from './ccbot'; // eslint-disable-line
 /// Alias that's simpler to access
 export const mdEsc = discord.escapeMarkdown;
 
+/// Returns a table-esque string from a set of rows.
+export function formatTable(rows: string[][]): string {
+    const highestLengths = Array.from({ length: rows[0].length }, (_, i) => Math.max(...rows.map(r => r[i].length)));
+
+    return `\u200B${rows.map(
+        row => row.map((s, i) => s.padStart(highestLengths[i], " ")).join("    ")
+    ).join("\n")}`;
+}
+
 /// Returns if a given channel is appropriate for NSFW information.
 export function nsfw(channel: discord.Channel): channel is (discord.TextChannel & { nsfw: true }) | discord.DMChannel {
     if (channel instanceof discord.TextChannel) {
