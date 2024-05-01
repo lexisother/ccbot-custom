@@ -189,7 +189,7 @@ export default class CCBotEmoteRegistry {
             }
         }
         // Is it a unicode emote?
-        return new CCBotEmoji(this.client, {
+        return new CCBotEmoji(this.client as CCBot<true>, {
             animated: false,
             name: looksLikeAnEmoji(text) ? text : '❓',
             // id: null,

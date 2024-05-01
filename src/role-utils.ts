@@ -19,7 +19,8 @@ import {localAdminCheck} from './utils';
 import { CCBot } from './ccbot';
 
 /// Retrieves and converts a role group to role IDs.
-export function convertRoleGroup(client: CCBot<true>, guild: discord.Guild, text: string): string[] {
+export function convertRoleGroup(client: CCBot<boolean>, guild: discord.Guild, text: string): string[] {
+    if (!client.isProviderReady()) return [];
     return convertRoles(client, guild, client.provider.get(guild, `roles-group-${text}`, []), true)!;
 }
 
@@ -41,7 +42,8 @@ export function convertRoles(_client: commando.CommandoClient, guild: discord.Gu
 
 /// Gets the list of roles denied to a user.
 /// This is ultimate-level authority, even above administrators to an extent (as they can change the settings)
-export function getUserDeniedRoles(client: CCBot<true>, member: discord.GuildMember): string[] {
+export function getUserDeniedRoles(client: CCBot<boolean>, member: discord.GuildMember): string[] {
+    if (!client.isProviderReady()) return [];
     const denial = convertRoleGroup(client, member.guild, 'deny-role');
     for (const s of convertRoleGroup(client, member.guild, `deny-user-${member.id}`))
         denial.push(s);

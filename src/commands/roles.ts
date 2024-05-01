@@ -48,7 +48,7 @@ function getWhitelist(client: CCBot, guild: discord.Guild): string[] {
 /// There's a lot of common stuff this combines into one function.
 /// Notably, this assumes that whoever causes this to be run, they are authorized to do so.
 /// If this may not be the case, add the checks in the calling function; this function focuses on the logic of the effects.
-export async function runRoleCommand(client: CCBot<true>, member: discord.GuildMember, roles: string[], add: boolean): Promise<string> {
+export async function runRoleCommand(client: CCBot<boolean>, member: discord.GuildMember, roles: string[], add: boolean): Promise<string> {
 
     const userRoles = Array.from(member.roles.cache.keys());
     const request = convertRoles(client, member.guild, roles, false);
