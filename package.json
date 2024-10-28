@@ -35,6 +35,6 @@
     "discord.js": "^14.14.1",
     "discord.js-commando": "github:Pixoll/pixoll-commando",
     "utf-8-validate": "^5.0.4",
-    "zlib-sync": "^0.1.7"
+    "zlib-sync": "^0.1.9"
   }
 }
