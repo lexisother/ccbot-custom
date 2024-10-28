@@ -20,6 +20,7 @@ import CCBotImpl from './ccbot-impl';
 import {Secrets} from './data/structures'
 import * as fs from 'fs';
 import * as net from 'net';
+import * as octokitUtil from './commands/ccmoddb-pr/octokit';
 
 declare global {
     // Using var declarations is the only way to get away from weird hacks.
@@ -55,8 +56,13 @@ class CCBotMain {
                 'GuildMessages',  'GuildMessageReactions',
                 'DirectMessages', 'DirectMessageReactions'
             ]
-        }, this.secrets.twitchClientId, this.secrets.youtubeData3Key);
+        }, this.secrets.twitchClientId, this.secrets.youtubeData3Key, this.secrets.githubCCModDB?.publishChannelId);
         this.dataCollector = null;
+
+        if (this.secrets.githubCCModDB) {
+            const { token, owner, repo } = this.secrets.githubCCModDB
+            octokitUtil.initOctokit(token, owner, repo)
+        }
 
         const kickstart = async (): Promise<void> => {
             try {

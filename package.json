@@ -20,6 +20,7 @@
     "@types/ws": "^8.5.3",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",
+    "ccmoddb": "github:CCDirectLink/CCModDB",
     "chai": "^4.3.0",
     "eslint": "^8.39.0",
     "eslint-config-dmitmel": "github:dmitmel/eslint-config-dmitmel",
@@ -30,10 +31,12 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
+    "@octokit/rest": "^21.0.2",
     "bufferutil": "^4.0.3",
     "discord-api-types": "^0.37.41",
     "discord.js": "^14.14.1",
     "discord.js-commando": "github:Pixoll/pixoll-commando",
+    "prettier": "^3.3.3",
     "utf-8-validate": "^5.0.4",
     "zlib-sync": "^0.1.9"
   }
