@@ -79,13 +79,10 @@ abstract class AOCViewerEntity<T> extends WatcherEntity {
 // <https://codeberg.org/Ven/bot/src/commit/e29d10e70de664ccd5f47d9e2140c15bc4762aa0/src/aoc.ts>
 export class AOCLeaderboardEntity extends AOCViewerEntity<Leaderboard> {
   public leaderboard: Leaderboard;
-  public sendLoop: NodeJS.Timer;
 
   public constructor(c: CCBot, data: AOCViewerEntityData) {
     super(c, "aoc-viewer", data);
     this.leaderboard = { members: {} }; // dummy to satisfy type
-
-    this.sendLoop = setInterval(this.postMessage, 1000 * 60 * 15);
   }
 
   public parseEndpointResponse(data: Leaderboard): void {
@@ -95,7 +92,6 @@ export class AOCLeaderboardEntity extends AOCViewerEntity<Leaderboard> {
 
   public onKill(transferOwnership: boolean): void {
     super.onKill(transferOwnership);
-    clearInterval(this.sendLoop);
   }
 
   public async postMessage(): Promise<void> {
