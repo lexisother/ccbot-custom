@@ -8,12 +8,12 @@
     {
         "type": "mod-database",
         "refreshMs": 3600000,
-        "endpoint": "https://raw.githubusercontent.com/CCDirectLink/CCModDB/master/npDatabase.json"
+        "endpoint": "https://raw.githubusercontent.com/CCDirectLink/CCModDB/stable/npDatabase.min.json"
     },
     {
         "type": "tool-database",
         "refreshMs": 3600000,
-        "endpoint": "https://raw.githubusercontent.com/CCDirectLink/CCModDB/master/tools.json"
+        "endpoint": "https://raw.githubusercontent.com/CCDirectLink/CCModDB/stable/tools.json"
     },
     {
         "type": "purge-database",

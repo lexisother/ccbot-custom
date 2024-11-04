@@ -24,3 +24,4 @@ overrides:
           '@typescript-eslint/no-dynamic-delete': off
           no-undefined: off
           dot-notation: off
+          node/no-unpublished-import: off
