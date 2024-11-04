@@ -1,5 +1,5 @@
 ## build runner
-FROM node:lts-alpine as build-runner
+FROM node:20.18.0-alpine AS build-runner
 
 # Add git and gyp deps
 RUN apk add git g++ make py3-pip
@@ -24,7 +24,7 @@ COPY tsconfig.json   .
 RUN pnpm run build
 
 ## producation runner
-FROM node:lts-alpine as prod-runner
+FROM node:20.18.0-alpine AS prod-runner
 
 # Add git and gyp deps
 RUN apk add git g++ make py3-pip
