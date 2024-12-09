@@ -208,7 +208,7 @@ export function getJSON<T>(endpoint: string, headers: Record<string, string>): P
                 data += piece;
             });
             res.on('end', (): void => {
-                console.log(data);
+                console.log(JSON.parse(data));
                 try {
                     resolve(JSON.parse(data));
                 } catch (e) {

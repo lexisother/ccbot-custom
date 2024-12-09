@@ -13,10 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import * as discord from "discord.js";
-import { CCBot, CCBotEntity } from "../ccbot";
+import type * as discord from "discord.js";
+import type { CCBot, CCBotEntity } from "../ccbot";
 import { formatTable, getJSON } from "../utils";
-import { WatcherEntity, WatcherEntityData } from "../watchers";
+import { WatcherEntity, type WatcherEntityData } from "../watchers";
 
 interface AOCViewerEntityData extends WatcherEntityData {
   endpoint: string;
@@ -74,7 +74,6 @@ abstract class AOCViewerEntity<T> extends WatcherEntity {
   }
 }
 
-/// Acts as the source for plugin list information.
 // Functionality wise, 95% of it was taken from here:
 // <https://codeberg.org/Ven/bot/src/commit/e29d10e70de664ccd5f47d9e2140c15bc4762aa0/src/aoc.ts>
 export class AOCLeaderboardEntity extends AOCViewerEntity<Leaderboard> {
@@ -103,11 +102,11 @@ export class AOCLeaderboardEntity extends AOCViewerEntity<Leaderboard> {
         this.channelId
       )) as discord.TextChannel;
 
-    let content = this.makeLeaderboardContent();
-    let messages = await boardChannel.messages.fetch();
-    let msg = messages.entries().next().value;
+    const content = this.makeLeaderboardContent();
+    const messages = await boardChannel.messages.fetch();
+    const msg = messages.entries().next().value;
     if (msg) {
-      if (msg.content !== content) await msg[1].edit({ content });
+      if (msg[1].content !== content) await msg[1].edit({ content });
     } else await boardChannel.send({ content });
   }
 
