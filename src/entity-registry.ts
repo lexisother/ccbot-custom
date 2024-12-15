@@ -164,6 +164,12 @@ export abstract class Entity<C> {
             sd.killTime = this.killTime;
         return sd;
     }
+
+    /// Logs to the console with the entity's class name.
+    public log(...args: Parameters<typeof console.log>): void {
+        const { name } = Object.getPrototypeOf(this).constructor;
+        console.log(`[${name}]`, ...args);
+    }
 }
 
 /// A function responsible for fetching resources need for creation of an entity, actually creating

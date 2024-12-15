@@ -224,6 +224,7 @@ export default class DynamicDataManager {
     public commands = new DynamicData<structures.CommandSet>('commands', false, true, {});
     public settings = new DynamicData<structures.GuildIndex>('settings', true, false, {});
     public emoteRegistryDump = new DynamicDataDump<structures.EmoteRegistryDump>('public/emote-registry');
+    public aocMapping = new DynamicData<structures.AOCMapping>('aoc-mapping', true, false, {});
 
     public initialLoad: Promise<void>;
 

@@ -22,6 +22,7 @@ interface AOCViewerEntityData extends WatcherEntityData {
   endpoint: string;
   cookie: string;
   channelId: string;
+  threadChannelId: string;
 }
 
 interface Leaderboard {
@@ -34,6 +35,14 @@ interface Leaderboard {
       global_score: number;
       local_score: number;
       last_star_ts: number;
+      completion_day_level: {
+        [date: string]: {
+          [star: string]: {
+            get_star_ts: number;
+            star_index: number;
+          };
+        };
+      };
     }
   >;
 }
@@ -43,12 +52,14 @@ abstract class AOCViewerEntity<T> extends WatcherEntity {
   public endpoint: string;
   public cookie: string;
   public channelId: string;
+  public threadChannelId: string;
 
   public constructor(c: CCBot, id: string, data: AOCViewerEntityData) {
     super(c, id, data);
     this.endpoint = data.endpoint;
     this.cookie = data.cookie;
     this.channelId = data.channelId;
+    this.threadChannelId = data.threadChannelId;
   }
 
   public async watcherTick(): Promise<void> {
@@ -70,6 +81,7 @@ abstract class AOCViewerEntity<T> extends WatcherEntity {
       endpoint: this.endpoint,
       cookie: this.cookie,
       channelId: this.channelId,
+      threadChannelId: this.threadChannelId,
     });
   }
 }
@@ -77,6 +89,8 @@ abstract class AOCViewerEntity<T> extends WatcherEntity {
 // Functionality wise, 95% of it was taken from here:
 // <https://codeberg.org/Ven/bot/src/commit/e29d10e70de664ccd5f47d9e2140c15bc4762aa0/src/aoc.ts>
 export class AOCLeaderboardEntity extends AOCViewerEntity<Leaderboard> {
+  public static THREAD_NAME_REGEX = /Discussion Thread Day (\d+)/;
+
   public leaderboard: Leaderboard;
 
   public constructor(c: CCBot, data: AOCViewerEntityData) {
@@ -87,10 +101,69 @@ export class AOCLeaderboardEntity extends AOCViewerEntity<Leaderboard> {
   public parseEndpointResponse(data: Leaderboard): void {
     this.leaderboard = data;
     this.postMessage();
+    this.reconcileThreadAccess();
   }
 
   public onKill(transferOwnership: boolean): void {
     super.onKill(transferOwnership);
+  }
+
+  public async reconcileThreadAccess(): Promise<void> {
+    let threadChannel = this.client.channels.cache.get(
+      this.threadChannelId
+    ) as discord.TextChannel;
+    if (!threadChannel)
+      threadChannel = (await this.client.channels.fetch(
+        this.threadChannelId
+      )) as discord.TextChannel;
+
+    // Fetch all active and inactive threads
+    let activeThreads = (await threadChannel.threads.fetchActive()).threads;
+    let inactiveThreads = (
+      await threadChannel.threads.fetchArchived({
+        type: "private",
+        fetchAll: true,
+      })
+    ).threads;
+    let threads = [...activeThreads, ...inactiveThreads];
+
+    // Sort threads by day number
+    const collator = new Intl.Collator("en");
+    threads = threads.sort((a, b) => {
+      return collator.compare(a[1].name, b[1].name);
+    });
+
+    // Construct a list of days with the AOC ids that have completed it
+    const completions: Record<string, string[]> = {};
+    for (const [id, user] of Object.entries(this.leaderboard.members)) {
+      for (let [day, dayData] of Object.entries(user.completion_day_level)) {
+        day = day.padStart(2, "0");
+
+        const completed = dayData["2"] !== undefined;
+        if (!completed) continue;
+
+        completions[day] ??= [];
+        completions[day].push(id);
+      }
+    }
+
+    // Go over each thread and check if all users are a member, if not, add them
+    for (const [, thread] of threads) {
+      const members = await thread.members.fetch();
+      const day = this.getThreadDayNumber(thread);
+      if (completions[day] === undefined) continue;
+
+      for (const id of completions[day]) {
+        let discordId = this.aocToDiscord(id);
+        if (!discordId) continue;
+
+        const user = await this.client.users.fetch(discordId);
+        if (!members.has(user.id)) {
+          this.log(`User ${user.username} isn't in this thread, adding`);
+          thread.send(`<@${user.id}>`);
+        }
+      }
+    }
   }
 
   public async postMessage(): Promise<void> {
@@ -146,6 +219,15 @@ Last Submission: <t:${lastStarTs}> by ${lastStarUser}
       `\`\`\`\n${formatTable(rows)}\`\`\`` + // thanks prettier
       `\nLast Updated: <t:${Math.floor(Date.now() / 1000)}>`
     );
+  }
+
+  private aocToDiscord(id: string): string | null {
+    const mapping = this.client.dynamicData.aocMapping.data;
+    return mapping[id as keyof typeof mapping];
+  }
+
+  private getThreadDayNumber(thread: discord.ThreadChannel): string {
+    return thread.name.match(AOCLeaderboardEntity.THREAD_NAME_REGEX)![1];
   }
 }
 

@@ -7,6 +7,7 @@ secrets.json
 # dynamics!
 dynamic-data/entities.json
 dynamic-data/settings.json
+dynamic-data/aoc-mapping.json
 dynamic-data/public/*
 
 init.sh

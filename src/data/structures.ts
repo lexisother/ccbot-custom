@@ -116,3 +116,5 @@ export interface EmoteRegistryDump {
     version: number;
     list: EmoteRegistryDumpEntry[];
 }
+
+export type AOCMapping = Record<string, string>;
