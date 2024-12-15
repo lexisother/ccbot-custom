@@ -64,6 +64,7 @@ class CCBotMain {
                 await this.client.loadData();
                 // Ok, *now* login
                 await this.client.login(this.secrets.token);
+                console.log(`Logged in as ${this.client.user?.username} (${this.client.user?.id})`)
                 this.startDataCollector();
             } catch (e) {
                 console.error(e);
