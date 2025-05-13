@@ -31,6 +31,7 @@ import loadStarboard from './entities/starboard';
 import {loadPluginDatabase, loadQuicklinks} from './entities/vd-plugins';
 import loadAocViewer from './entities/aoc';
 import {CCBot} from './ccbot';
+import { loadMntTracker } from './entities/mnt';
 
 /// Registers all the entities. (More or less.)
 export default function registerAllEntities(cr: CCBot, twitchClientId: string | undefined, ytClientId: string | undefined): void {
@@ -51,7 +52,8 @@ export default function registerAllEntities(cr: CCBot, twitchClientId: string | 
         .registerEntityType('starboard', loadStarboard)
         .registerEntityType('plugin-database', loadPluginDatabase)
         .registerEntityType('plugin-quicklinks', loadQuicklinks)
-        .registerEntityType('aoc-viewer', loadAocViewer);
+        .registerEntityType('aoc-viewer', loadAocViewer)
+        .registerEntityType('mnt-tracker', loadMntTracker);
     if (twitchClientId)
         cr.entities.registerEntityType('twitch-stream-provider', newTwitchStreamProviderLoader(twitchClientId));
     if (ytClientId)
