@@ -7,11 +7,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v4
         with:
-          node-version: '19.x'
+          node-version: "19.x"
       - run: npm i -g pnpm
 
       - name: Get pnpm store directory
@@ -19,7 +19,7 @@ jobs:
         run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
       - name: Setup pnpm cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -27,7 +27,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: ESLint cache
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: .eslintcache
           key: ${{ runner.os }}-eslint-${{ hashFiles('.eslintrc.yml') }}-${{ hashFiles('**/pnpm-lock.yaml') }}
