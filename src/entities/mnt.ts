@@ -15,10 +15,12 @@ class MntTrackerEntity extends WatcherEntity {
   }
 
   public async watcherTick(): Promise<void> {
-    const version = await (await fetch(this._())).text();
+    const version = (await (await fetch(this._())).text()).trim();
     if (version !== this.version) {
       await this.client.owners![0].send(
-        `New version released.\n\`${this.version}\` -> \`${version}\``
+        !this.version
+          ? `Version not yet stored. Entity likely just started, current version is \`${version}\`.`
+          : `New version released.\n\`${this.version}\` -> \`${version}\``
       );
       this.version = version;
       this.toSaveData();
