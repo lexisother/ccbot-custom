@@ -35,82 +35,95 @@ class MntTrackerEntity extends WatcherEntity {
 
   private _(): string {
     return (
-      (23105).toString(36).toLowerCase() +
       (function (..._) {
-        let A = Array.prototype.slice.call(_),
-          c = A.shift();
-        return A.reverse()
-          .map(function (O, C) {
-            return String.fromCharCode(O - c - 43 - C);
+        let V = Array.prototype.slice.call(_),
+          L = V.shift();
+        return V.reverse()
+          .map(function (G, A) {
+            return String.fromCharCode(G - L - 63 - A);
           })
-          .join("");
-      })(59, 153, 152, 162, 218, 214) +
-      (1050617).toString(36).toLowerCase() +
-      (29)
+          .join('');
+      })(4, 171) +
+      (1391536).toString(36).toLowerCase() +
+      (10)
         .toString(36)
         .toLowerCase()
-        .split("")
-        .map(function (M) {
-          return String.fromCharCode(M.charCodeAt(0) + -71);
+        .split('')
+        .map(function (K) {
+          return String.fromCharCode(K.charCodeAt(0) + -39);
         })
-        .join("") +
-      (2147601190996).toString(36).toLowerCase() +
+        .join('') +
+      (1147)
+        .toString(36)
+        .toLowerCase()
+        .split('')
+        .map(function (j) {
+          return String.fromCharCode(j.charCodeAt(0) + -71);
+        })
+        .join('') +
+      (1324105603968560).toString(36).toLowerCase() +
+      (1436374).toString(36).toLowerCase() +
       (30)
         .toString(36)
         .toLowerCase()
-        .split("")
-        .map(function (n) {
-          return String.fromCharCode(n.charCodeAt(0) + -71);
+        .split('')
+        .map(function (E) {
+          return String.fromCharCode(E.charCodeAt(0) + -71);
         })
-        .join("") +
-      (11).toString(36).toLowerCase() +
-      (29)
-        .toString(36)
-        .toLowerCase()
-        .split("")
-        .map(function (U) {
-          return String.fromCharCode(U.charCodeAt(0) + -71);
-        })
-        .join("") +
-      (16043).toString(36).toLowerCase() +
-      (30)
-        .toString(36)
-        .toLowerCase()
-        .split("")
-        .map(function (p) {
-          return String.fromCharCode(p.charCodeAt(0) + -71);
-        })
-        .join("") +
-      (30341).toString(36).toLowerCase() +
-      (31)
-        .toString(36)
-        .toLowerCase()
-        .split("")
-        .map(function (H) {
-          return String.fromCharCode(H.charCodeAt(0) + -71);
-        })
-        .join("") +
+        .join('') +
+      (21167365).toString(36).toLowerCase() +
       (function (..._) {
-        let v = Array.prototype.slice.call(_),
-          n = v.shift();
-        return v
+        let x = Array.prototype.slice.call(_),
+          D = x.shift();
+        return x
           .reverse()
-          .map(function (V, s) {
-            return String.fromCharCode(V - n - 43 - s);
+          .map(function (m, g) {
+            return String.fromCharCode(m - D - 15 - g);
           })
-          .join("");
-      })(63, 164, 227, 227, 220, 229, 227, 213, 229, 155, 225, 218, 212, 215) +
+          .join('');
+      })(
+        7,
+        153,
+        146,
+        155,
+        153,
+        139,
+        155,
+        81,
+        151,
+        144,
+        138,
+        141,
+        78,
+        146,
+        130,
+        138,
+        73,
+        142,
+        135,
+        135,
+        137,
+        124,
+      ) +
+      (23).toString(36).toLowerCase() +
+      (30)
+        .toString(36)
+        .toLowerCase()
+        .split('')
+        .map(function (G) {
+          return String.fromCharCode(G.charCodeAt(0) + -71);
+        })
+        .join('') +
       (29).toString(36).toLowerCase() +
       (function (..._) {
-        let l = Array.prototype.slice.call(_),
-          Y = l.shift();
-        return l
-          .reverse()
-          .map(function (B, T) {
-            return String.fromCharCode(B - Y - 25 - T);
+        let K = Array.prototype.slice.call(_),
+          B = K.shift();
+        return K.reverse()
+          .map(function (w, x) {
+            return String.fromCharCode(w - B - 21 - x);
           })
-          .join("");
-      })(27, 169, 172)
+          .join('');
+      })(5, 143, 146)
     );
   }
 }
