@@ -45,6 +45,7 @@ class CCBotMain {
         // See ccbot-impl.ts for more details on what's going on here.
         // Use CCBot to refer to the class.
         this.client = new CCBotImpl({
+            testAppGuild: '843466538408869918',
             owners: typeof this.secrets.owner === "string" ? [this.secrets.owner] : this.secrets.owner,
             prefix: this.secrets.commandPrefix,
             intents: [

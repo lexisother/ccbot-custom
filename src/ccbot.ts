@@ -25,10 +25,11 @@ declare module 'discord.js' {
     // THE FOLLOWING EVENTS ARE EXTENSIONS:
     interface ClientEvents {
         raw: [discord.GatewayDispatchPayload];
+        ccbotInteractionCreate: [discord.Snowflake, discord.Snowflake, discord.Snowflake, discord.Snowflake];
         ccbotMessageReactionAdd: [discord.Emoji, discord.Snowflake, discord.Snowflake, discord.Snowflake, boolean];
         ccbotMessageDeletes: [utils.TextBasedChannel, discord.Snowflake[]];
         ccbotMessageUpdateUnchecked: [utils.TextBasedChannel, discord.Snowflake];
-        ccbotBanAddRemove: [commando.CommandoGuild, discord.APIUser, boolean]
+        ccbotBanAddRemove: [commando.CommandoGuild, discord.APIUser, boolean];
     }
 
 }
@@ -88,7 +89,20 @@ export abstract class CCBot<Ready extends boolean = boolean> extends commando.Co
     /// As far as I know the only kinds of events that need this kind of thing are reaction events,
     /// and I have already solved those... well enough.
     private handleRawEvent(event: discord.GatewayDispatchPayload): void {
-        if (event.t == 'MESSAGE_REACTION_ADD' || event.t == 'MESSAGE_REACTION_REMOVE') {
+
+        if (event.t === 'INTERACTION_CREATE') {
+        console.log(event)
+            // A user interacted here, so there must be user data present
+            if (!event.d.user) return;
+
+            // If we can't find this user, give up
+            const user = this.users.cache.get(event.d.user.id)
+            if (!user) return;
+
+            // this.emit('ccbotInteractionCreate', )
+        }
+
+        if (event.t === 'MESSAGE_REACTION_ADD' || event.t === 'MESSAGE_REACTION_REMOVE') {
             // Ew ew ew WHY IS THIS NECESSARY TO MAKE REACTIONS WORK
             // https://discordjs.guide/popular-topics/reactions.html#listening-for-reactions-on-old-messages
             // WTF
@@ -111,38 +125,41 @@ export abstract class CCBot<Ready extends boolean = boolean> extends commando.Co
                 // TODO: this is a unicode emoji, simply use emojiDetails.name here
                 emoji = this.emoteRegistry.emojiResolverNina(emojiDetails.name!);
             }
-            entity.emoteReactionTouched(emoji, user, event.t == 'MESSAGE_REACTION_ADD');
+            entity.emoteReactionTouched(emoji, user, event.t === 'MESSAGE_REACTION_ADD');
             if (event.d.guild_id) {
-                this.emit('ccbotMessageReactionAdd', emoji, event.d.message_id, event.d.channel_id, event.d.guild_id, event.t == "MESSAGE_REACTION_ADD")
+                this.emit('ccbotMessageReactionAdd', emoji, event.d.message_id, event.d.channel_id, event.d.guild_id, event.t === "MESSAGE_REACTION_ADD")
             }
-        } else if ((event.t == 'MESSAGE_UPDATE') || (event.t == 'MESSAGE_DELETE') || (event.t == 'MESSAGE_DELETE_BULK')) {
+        } else if ((event.t === 'MESSAGE_UPDATE') || (event.t === 'MESSAGE_DELETE') || (event.t === 'MESSAGE_DELETE_BULK')) {
             const channel = this.channels.cache.get(event.d.channel_id);
             // No channel means no guild, so nowhere to route
             if (!channel)
                 return;
-            if (event.t == 'MESSAGE_UPDATE') {
+            if (event.t === 'MESSAGE_UPDATE') {
                 this.emit('ccbotMessageUpdateUnchecked', channel as utils.TextBasedChannel, event.d.id);
-            } else if (event.t == 'MESSAGE_DELETE') {
+            } else if (event.t === 'MESSAGE_DELETE') {
                 this.emit('ccbotMessageDeletes', channel as utils.TextBasedChannel, [event.d.id]);
-            } else if (event.t == 'MESSAGE_DELETE_BULK') {
+            } else if (event.t === 'MESSAGE_DELETE_BULK') {
                 this.emit('ccbotMessageDeletes', channel as utils.TextBasedChannel, event.d.ids);
             }
-        } else if ((event.t == 'GUILD_BAN_ADD') || (event.t == 'GUILD_BAN_REMOVE')) {
+        } else if ((event.t === 'GUILD_BAN_ADD') || (event.t === 'GUILD_BAN_REMOVE')) {
             const guild = this.guilds.cache.get(event.d.guild_id);
             // No guild, no idea who to inform
             if (!guild)
                 return;
-            this.emit('ccbotBanAddRemove', guild as commando.CommandoGuild, event.d.user, event.t == 'GUILD_BAN_ADD');
+            this.emit('ccbotBanAddRemove', guild as commando.CommandoGuild, event.d.user, event.t === 'GUILD_BAN_ADD');
         }
     }
 }
 
 /// *All commands in the project should be based off of this class, directly or indirectly.*
 /// A version of commando.Command with CCBot taking the place of the client field.
-export abstract class CCBotCommand extends commando.Command {
+export abstract class CCBotCommand<
+    InGuild extends boolean = boolean,
+    Args extends commando.CommandArgumentsResolvable = commando.CommandArgumentsResolvable
+>extends commando.Command<InGuild, Args> {
     public client!: CCBot;
-    public constructor(client: CCBot, options: commando.CommandInfo) {
-        super(client, options);
+    public constructor(client: CCBot, options: commando.CommandInfo<InGuild, Args>, slashInfo?: commando.SlashCommandInfo) {
+        super(client, options, slashInfo);
         // Add default throttling options. The source of these might need to be put elsewhere.
         // Note though that a live-updatable mechanism would need to rely on a by-reference scheme,
         //  to avoid having to keep track of which commands have explicit throttles.
