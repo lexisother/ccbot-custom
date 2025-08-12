@@ -25,12 +25,12 @@ import registerAllEntities from './all-entities';
 /// Theoretically, it's just type definitions, but unfortunately the imports still happen.
 /// Only the constructor should be here - the rest is API for the commands and so should be in CCBot.
 export default class CCBotImpl extends CCBot {
-    public constructor(co: commando.CommandoClientOptions, twitchClientId: string | undefined, ytClientId: string | undefined) {
+    public constructor(co: commando.CommandoClientOptions) {
         super(co);
         this.registry = new CCBotCommandRegistry(this);
         this.dispatcher = new CCBotCommandDispatcher(this, this.registry);
         registerAllCommands(this);
-        registerAllEntities(this, twitchClientId, ytClientId);
+        registerAllEntities(this);
         this.setProvider(new CCBotSettingProvider(this.dynamicData.settings));
     }
 }

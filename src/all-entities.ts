@@ -15,17 +15,12 @@
 
 import loadDateActivity from './entities/date-activity';
 import loadPageSwitcher from './entities/page-switcher';
-import loadOldBehaviors from './entities/old-behaviors';
 import loadGreeter from './entities/greeter';
 import loadAuditor from './entities/auditor';
 import loadReactRoles from './entities/react-roles';
 import loadRandomActivity from './entities/random-activity';
-import {loadModDatabase, loadToolDatabase} from './entities/mod-database';
-import loadStreamWatcher from './entities/stream-watcher';
 import {loadPurgeDatabase, loadPurgeDatabaseChannel} from './entities/purge-database';
 import {loadUserDatablock} from './entities/user-datablock';
-import {newTwitchStreamProviderLoader} from './entities/twitch-stream-provider';
-import {newYouTubeStreamProviderLoader} from './entities/youtube-stream-provider';
 import loadCountdownActivity from './entities/countdown-activity';
 import loadStarboard from './entities/starboard';
 import {loadPluginDatabase, loadQuicklinks} from './entities/vd-plugins';
@@ -34,17 +29,14 @@ import {CCBot} from './ccbot';
 import { loadMntTracker } from './entities/mnt';
 
 /// Registers all the entities. (More or less.)
-export default function registerAllEntities(cr: CCBot, twitchClientId: string | undefined, ytClientId: string | undefined): void {
+export default function registerAllEntities(cr: CCBot): void {
     cr.entities
         .registerEntityType('date-activity', loadDateActivity)
         .registerEntityType('page-switcher', loadPageSwitcher)
-        .registerEntityType('old-behaviors', loadOldBehaviors)
         .registerEntityType('greeter', loadGreeter)
         .registerEntityType('auditor', loadAuditor)
         .registerEntityType('react-roles', loadReactRoles)
         .registerEntityType('random-activity', loadRandomActivity)
-        .registerEntityType('mod-database', loadModDatabase)
-        .registerEntityType('tool-database', loadToolDatabase)
         .registerEntityType('purge-database', loadPurgeDatabase)
         .registerEntityType('purge-database-channel', loadPurgeDatabaseChannel)
         .registerEntityType('user-datablock', loadUserDatablock)
@@ -54,9 +46,4 @@ export default function registerAllEntities(cr: CCBot, twitchClientId: string | 
         .registerEntityType('plugin-quicklinks', loadQuicklinks)
         .registerEntityType('aoc-viewer', loadAocViewer)
         .registerEntityType('mnt-tracker', loadMntTracker);
-    if (twitchClientId)
-        cr.entities.registerEntityType('twitch-stream-provider', newTwitchStreamProviderLoader(twitchClientId));
-    if (ytClientId)
-        cr.entities.registerEntityType('youtube-stream-provider', newYouTubeStreamProviderLoader(ytClientId));
-    cr.entities.registerEntityType('stream-watcher', loadStreamWatcher);
 }

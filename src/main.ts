@@ -55,7 +55,7 @@ class CCBotMain {
                 'GuildMessages',  'GuildMessageReactions',
                 'DirectMessages', 'DirectMessageReactions'
             ]
-        }, this.secrets.twitchClientId, this.secrets.youtubeData3Key);
+        });
         this.dataCollector = null;
 
         const kickstart = async (): Promise<void> => {
