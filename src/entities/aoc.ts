@@ -19,6 +19,7 @@ import { formatTable, getJSON } from "../utils";
 import { WatcherEntity, type WatcherEntityData } from "../watchers";
 
 interface AOCViewerEntityData extends WatcherEntityData {
+  guild: string;
   endpoint: string;
   cookie: string;
   channelId: string;
@@ -87,14 +88,16 @@ abstract class AOCViewerEntity<T> extends WatcherEntity {
 }
 
 // Functionality wise, 95% of it was taken from here:
-// <https://codeberg.org/Ven/bot/src/commit/e29d10e70de664ccd5f47d9e2140c15bc4762aa0/src/aoc.ts>
+// <https://codeberg.org/vee/bot/src/commit/e29d10e70de664ccd5f47d9e2140c15bc4762aa0/src/aoc.ts>
 export class AOCLeaderboardEntity extends AOCViewerEntity<Leaderboard> {
   public static THREAD_NAME_REGEX = /Discussion Thread Day (\d+)/;
 
+  public guild: discord.Guild;
   public leaderboard: Leaderboard;
 
-  public constructor(c: CCBot, data: AOCViewerEntityData) {
-    super(c, "aoc-viewer", data);
+  public constructor(c: CCBot, g: discord.Guild, data: AOCViewerEntityData) {
+    super(c, `aoc-viewer-${g.id}`, data);
+    this.guild = g;
     this.leaderboard = { members: {} }; // dummy to satisfy type
   }
 
@@ -102,6 +105,12 @@ export class AOCLeaderboardEntity extends AOCViewerEntity<Leaderboard> {
     this.leaderboard = data;
     this.postMessage();
     this.reconcileThreadAccess();
+  }
+
+  public toSaveData(): WatcherEntityData {
+    return Object.assign(super.toSaveData(), {
+      guild: this.guild.id
+    })
   }
 
   public onKill(transferOwnership: boolean): void {
@@ -235,5 +244,7 @@ export default async function load(
   c: CCBot,
   data: AOCViewerEntityData
 ): Promise<CCBotEntity> {
-  return new AOCLeaderboardEntity(c, data);
+  const guild = c.guilds.cache.get(data.guild);
+  if (!guild) throw new Error(`unable to find the guild ${data.guild}`);
+  return new AOCLeaderboardEntity(c, guild, data);
 }
