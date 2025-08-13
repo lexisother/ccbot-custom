@@ -34,7 +34,9 @@ class HD2TrackerEntity extends WatcherEntity {
     super(c, `hd2-tracker-${id}`, data);
 
     this.channel = channel;
-    this.baseUrl = data.baseUrl;
+    this.baseUrl = data.baseUrl.endsWith("/")
+      ? data.baseUrl.slice(0, -1)
+      : data.baseUrl;
     this.apiType = data.apiType;
 
     this.effects = data.effects ?? [];
