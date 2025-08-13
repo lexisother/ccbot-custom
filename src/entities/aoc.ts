@@ -225,7 +225,7 @@ Leaderboard: ${this.endpoint}
 Last Submission: <t:${lastStarTs}> by ${lastStarUser}
 
 ` +
-      `\`\`\`\n${formatTable(rows)}\`\`\`` + // thanks prettier
+      `\`\`\`\n${formatTable(rows)}\n\`\`\`` + // thanks prettier
       `\nLast Updated: <t:${Math.floor(Date.now() / 1000)}>`
     );
   }

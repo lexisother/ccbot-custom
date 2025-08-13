@@ -35,6 +35,42 @@ export function formatTable(rows: string[][]): string {
     ).join("\n")}`;
 }
 
+export interface DiffResult<T> {
+    additions: T[],
+    removals: T[],
+    changes: Array<{ before: T, after: T }>;
+}
+/// Returns the difference between two arrays
+export function diffArrays<T extends Record<string, unknown>>(
+    oldArr: T[],
+    newArr: T[],
+    idKey: keyof T = "id"
+): DiffResult<T> {
+    const oldMap = new Map<unknown, T>(oldArr.map(item => [item[idKey], item]));
+    const newMap = new Map<unknown, T>(newArr.map(item => [item[idKey], item]));
+
+    const additions: T[] = [];
+    const removals: T[] = [];
+    const changes: Array<{ before: T, after: T }> = [];
+
+    for (const [id, newItem] of newMap) {
+        const oldItem = oldMap.get(id);
+        if (!oldItem) {
+            additions.push(newItem);
+        } else if (JSON.stringify(oldItem) !== JSON.stringify(newItem)) {
+            changes.push({ before: oldItem, after: newItem });
+        }
+    }
+
+    for (const [id, oldItem] of oldMap) {
+        if (!newMap.has(id)) {
+            removals.push(oldItem);
+        }
+    }
+
+    return { additions, removals, changes };
+}
+
 /// Returns if a given channel is appropriate for NSFW information.
 export function nsfw(channel: discord.Channel): channel is (discord.TextChannel & { nsfw: true }) | discord.DMChannel {
     if (channel instanceof discord.TextChannel) {

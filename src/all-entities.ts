@@ -25,8 +25,9 @@ import loadCountdownActivity from './entities/countdown-activity';
 import loadStarboard from './entities/starboard';
 import {loadPluginDatabase, loadQuicklinks} from './entities/vd-plugins';
 import loadAocViewer from './entities/aoc';
+import loadMntTracker from './entities/mnt';
+import loadHd2Tracker from './entities/hd2';
 import {CCBot} from './ccbot';
-import { loadMntTracker } from './entities/mnt';
 
 /// Registers all the entities. (More or less.)
 export default function registerAllEntities(cr: CCBot): void {
@@ -45,5 +46,6 @@ export default function registerAllEntities(cr: CCBot): void {
         .registerEntityType('plugin-database', loadPluginDatabase)
         .registerEntityType('plugin-quicklinks', loadQuicklinks)
         .registerEntityType('aoc-viewer', loadAocViewer)
-        .registerEntityType('mnt-tracker', loadMntTracker);
+        .registerEntityType('mnt-tracker', loadMntTracker)
+        .registerEntityType('hd2-tracker', loadHd2Tracker);
 }

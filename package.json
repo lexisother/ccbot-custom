@@ -9,7 +9,7 @@
     "clean": "rm -r dist",
     "build": "tsc",
     "watch": "tsc --watch",
-    "start": "\"$NODE\" --inspect dist/main.js",
+    "start": "node --inspect dist/main.js",
     "lint": "eslint src --ext .js,.ts --ignore-path .gitignore",
     "test": "mocha -r ts-node/register tests/**/*.spec.ts"
   },

@@ -128,7 +128,7 @@ class MntTrackerEntity extends WatcherEntity {
   }
 }
 
-export async function loadMntTracker(
+export default async function loadMntTracker(
   c: CCBot,
   data: MntTrackerEntityData
 ): Promise<CCBotEntity> {
