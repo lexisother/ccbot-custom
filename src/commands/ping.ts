@@ -17,6 +17,7 @@ import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
 
+/// Tests bot response time.
 export default class PingCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {

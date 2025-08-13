@@ -17,6 +17,7 @@ import ReloadCommand from './commands/reload';
 import CounterCommand from './commands/counter';
 import PingCommand from './commands/ping';
 import {AddQuoteCommand, InspireCommand, RmQuoteCommand} from './commands/inspire';
+import HugCommand from './commands/hug';
 import PurgeCommand from './commands/purge';
 import ArmyCommand from './commands/army';
 import {RolesAddCommand, RolesListCommand, RolesRmCommand} from './commands/roles';
@@ -67,6 +68,7 @@ export default function registerAllCommands(cr: CCBot): void {
         .registerCommand(new EmoteCommand(cr))
         .registerCommand(new ReactCommand(cr))
         .registerCommand(new SayCommand(cr))
+        .registerCommand(new HugCommand(cr))
         .registerCommand(new PurgeCommand(cr))
         .registerCommand(new InspireCommand(cr))
         .registerCommand(new InviteCommand(cr))
