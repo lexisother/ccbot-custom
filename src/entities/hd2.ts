@@ -87,20 +87,10 @@ class HD2TrackerEntity extends WatcherEntity {
     }
 
     for (const change of diff.changes) {
-      const embed = this.constructEffectEmbed("changed", change.before);
-      for (const key of Object.keys(change.before)) {
-        if (
-          JSON.stringify(change.before[key]) !==
-          JSON.stringify(change.after[key])
-        ) {
-          embed.addFields({
-            name: key,
-            value: `\`${change.before[key]}\` → \`${change.after[key]}\``,
-            inline: true,
-          });
-        }
-      }
-      this.channel.send({ embeds: [embed] });
+      const embed = this.constructEffectEmbed("changed", change.after);
+      const changeEmbed = this.constructEffectChangesEmbed(change.before, change.after);
+
+      this.channel.send({ embeds: [embed, changeEmbed] });
     }
 
     this.effects = fetchedEffects;
@@ -148,6 +138,27 @@ class HD2TrackerEntity extends WatcherEntity {
           ? "#E0A313"
           : "#E01D13"
       );
+  }
+
+  private constructEffectChangesEmbed(before: APIGalacticWarEffect, after: APIGalacticWarEffect): discord.EmbedBuilder {
+    const embed = new discord.EmbedBuilder()
+      .setAuthor({ name: 'Effect Changes' })
+      .setColor('#E0A313');
+
+    for (const key of Object.keys(before)) {
+      if (
+        JSON.stringify(before[key]) !==
+        JSON.stringify(after[key])
+      ) {
+        embed.addFields({
+          name: key,
+          value: `\`${before[key]}\` → \`${after[key]}\``,
+          inline: true,
+        });
+      }
+    }
+
+    return embed;
   }
 
   private apiUrls(): Record<string, string> {
