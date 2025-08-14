@@ -71,6 +71,11 @@ class HD2TrackerEntity extends WatcherEntity {
 
   private handleEffects(fetchedEffects: APIGalacticWarEffect[]): void {
     const oldEffects = this.effects;
+    if (oldEffects.length === 0) {
+      this.effects = fetchedEffects;
+      return;
+    }
+
     const diff = diffArrays<APIGalacticWarEffect>(oldEffects, fetchedEffects);
 
     for (const addition of diff.additions) {
