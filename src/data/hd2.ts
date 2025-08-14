@@ -1,4 +1,4 @@
-export type ApiType = 'live' | 'legend';
+export type ApiType = "live" | "legend";
 
 export type ValueTypes = [number, number];
 export type Values = [number, number];
@@ -17,6 +17,11 @@ export interface APIGalacticWarEffect {
   [key: string]: unknown;
 }
 
+export interface APIStatus {
+  storyBeatId32: number;
+}
+
+// prettier-ignore
 export const def_effect_types: Record<number, string> = {
    1: "war_LibMultiplier",        // applies a liberation multiplier
   20: "game_SEAFSupport",         // mission_support_seaf_squads
@@ -74,6 +79,7 @@ export const def_effect_types: Record<number, string> = {
   93: "game_OperationModToggle",  // game_operation_modifier_toggle
 }
 
+// prettier-ignore
 export const def_effect_value_types: Record<number, string> = {
    0: "vt_None",
    1: "vt_Count",

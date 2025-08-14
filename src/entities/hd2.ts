@@ -4,10 +4,17 @@ import { diffArrays, getJSON } from "../utils";
 import { WatcherEntity, WatcherEntityData } from "../watchers";
 import {
   APIGalacticWarEffect,
+  APIStatus,
   ApiType,
   def_effect_types,
   def_effect_value_types,
 } from "../data/hd2";
+
+const COLOURS = {
+  added: "#2DB610",
+  changed: "#E0A313",
+  removed: "#E01D13",
+} as const;
 
 const colourApiUrl = (hex: string): string => {
   return `https://colours.alyxia.dev/${
@@ -19,17 +26,20 @@ interface HD2TrackerEntityData extends WatcherEntityData {
   channelId: discord.Snowflake;
   baseUrl: string;
   apiType: ApiType;
+  warId: string;
   colour: string;
 
   effects?: APIGalacticWarEffect[];
+  storyBeatId32?: number;
 }
 
 class HD2TrackerEntity extends WatcherEntity {
   public channel: discord.TextBasedChannel;
   public baseUrl: string;
   public apiType: ApiType;
+  public warId: string;
   public colour: string;
-  public data: Pick<HD2TrackerEntityData, "effects">;
+  public data: Pick<HD2TrackerEntityData, "effects" | "storyBeatId32">;
 
   public constructor(
     c: CCBot,
@@ -44,25 +54,32 @@ class HD2TrackerEntity extends WatcherEntity {
       ? data.baseUrl.slice(0, -1)
       : data.baseUrl;
     this.apiType = data.apiType;
+    this.warId = data.warId;
     this.colour = data.colour;
 
     this.data = {
-      effects: data.effects,
+      effects: data.effects ?? [],
+      storyBeatId32: data.storyBeatId32 ?? 0,
     };
   }
 
   public async watcherTick(): Promise<void> {
     const urls = this.apiUrls();
     for (const type of Object.keys(urls)) {
-      const res = await getJSON<APIGalacticWarEffect[]>(urls[type], {
+      let res = await getJSON(urls[type](this.warId), {
         "User-Agent":
           "Keeper Discord Bot (https://github.com/lexisother/ccbot-custom/blob/master/src/entities/hd2.ts)",
       });
 
       switch (type) {
-        case "effects":
-          this.handleEffects(res);
+        case "effects": {
+          this.handleEffects(res as APIGalacticWarEffect[]);
           break;
+        }
+        case "status": {
+          this.handleStatus(res as APIStatus);
+          break;
+        }
       }
     }
   }
@@ -73,9 +90,11 @@ class HD2TrackerEntity extends WatcherEntity {
       channelId: this.channel.id,
       baseUrl: this.baseUrl,
       apiType: this.apiType,
+      warId: this.warId,
       colour: this.colour,
 
       effects: this.data.effects,
+      storyBeatId32: this.data.storyBeatId32,
     });
   }
 
@@ -109,6 +128,26 @@ class HD2TrackerEntity extends WatcherEntity {
     }
 
     this.data.effects = fetchedEffects;
+  }
+
+  private handleStatus(status: APIStatus): void {
+    if (this.data.storyBeatId32 === status.storyBeatId32) return;
+
+    this.channel.send({
+      embeds: [
+        new discord.EmbedBuilder()
+          .setAuthor({
+            name: `storyBeatId32 changed on ${this.apiType}`,
+            iconURL: colourApiUrl(this.colour),
+          })
+          .setColor(COLOURS.changed)
+          .setTitle(
+            `\`${this.data.storyBeatId32}\` → \`${status.storyBeatId32}\``
+          ),
+      ],
+    });
+
+    this.data.storyBeatId32 = status.storyBeatId32;
   }
 
   private constructEffectEmbed(
@@ -151,10 +190,10 @@ class HD2TrackerEntity extends WatcherEntity {
       ])
       .setColor(
         type === "added"
-          ? "#2DB610"
+          ? COLOURS.added
           : type === "changed"
-          ? "#E0A313"
-          : "#E01D13"
+          ? COLOURS.changed
+          : COLOURS.removed
       );
   }
 
@@ -179,9 +218,10 @@ class HD2TrackerEntity extends WatcherEntity {
     return embed;
   }
 
-  private apiUrls(): Record<string, string> {
+  private apiUrls(): Record<string, (warId: string) => string> {
     return {
-      effects: `${this.baseUrl}/api/WarSeason/GalacticWarEffects`,
+      effects: () => `${this.baseUrl}/api/WarSeason/GalacticWarEffects`,
+      status: (warId) => `${this.baseUrl}/api/WarSeason/${warId}/Status`,
     };
   }
 }
