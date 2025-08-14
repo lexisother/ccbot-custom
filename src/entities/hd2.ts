@@ -9,8 +9,6 @@ import {
   def_effect_value_types,
 } from "../data/hd2";
 
-// function
-
 interface HD2TrackerEntityData extends WatcherEntityData {
   channelId: discord.Snowflake;
   baseUrl: string;
@@ -123,7 +121,7 @@ class HD2TrackerEntity extends WatcherEntity {
     return new discord.EmbedBuilder()
       .setAuthor({ name: `Galactic War Effect ${type} on ${this.apiType}` })
       .setTitle(
-        `${effect.id} \`${def_effect_types[effect.effectType]} ${
+        `${effect.id} \`${def_effect_types[effect.effectType] ?? 'UNK'} ${
           effect.effectType
         }\``
       )
@@ -131,7 +129,12 @@ class HD2TrackerEntity extends WatcherEntity {
         {
           name: "`nameHash`",
           value: `\`${effect.nameHash}\``,
-          inline: true,
+          inline: true
+        },
+        {
+          name: "`gameplayEffectId32`",
+          value: `\`${effect.gameplayEffectId32}\``,
+          inline: true
         },
         ...values.map((v, i) => ({
           name: `Value ${i + 1}`,
