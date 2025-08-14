@@ -9,10 +9,17 @@ import {
   def_effect_value_types,
 } from "../data/hd2";
 
+const colourApiUrl = (hex: string): string => {
+  return `https://colours.alyxia.dev/${
+    hex.startsWith("#") ? hex.slice(1) : hex
+  }`;
+};
+
 interface HD2TrackerEntityData extends WatcherEntityData {
   channelId: discord.Snowflake;
   baseUrl: string;
   apiType: ApiType;
+  colour: string;
 
   effects?: APIGalacticWarEffect[];
 }
@@ -21,7 +28,8 @@ class HD2TrackerEntity extends WatcherEntity {
   public channel: discord.TextBasedChannel;
   public baseUrl: string;
   public apiType: ApiType;
-  public effects: APIGalacticWarEffect[];
+  public colour: string;
+  public data: Pick<HD2TrackerEntityData, "effects">;
 
   public constructor(
     c: CCBot,
@@ -36,8 +44,11 @@ class HD2TrackerEntity extends WatcherEntity {
       ? data.baseUrl.slice(0, -1)
       : data.baseUrl;
     this.apiType = data.apiType;
+    this.colour = data.colour;
 
-    this.effects = data.effects ?? [];
+    this.data = {
+      effects: data.effects,
+    };
   }
 
   public async watcherTick(): Promise<void> {
@@ -62,15 +73,16 @@ class HD2TrackerEntity extends WatcherEntity {
       channelId: this.channel.id,
       baseUrl: this.baseUrl,
       apiType: this.apiType,
+      colour: this.colour,
 
-      effects: this.effects,
+      effects: this.data.effects,
     });
   }
 
   private handleEffects(fetchedEffects: APIGalacticWarEffect[]): void {
-    const oldEffects = this.effects;
+    const oldEffects = this.data.effects ?? [];
     if (oldEffects.length === 0) {
-      this.effects = fetchedEffects;
+      this.data.effects = fetchedEffects;
       return;
     }
 
@@ -88,12 +100,15 @@ class HD2TrackerEntity extends WatcherEntity {
 
     for (const change of diff.changes) {
       const embed = this.constructEffectEmbed("changed", change.after);
-      const changeEmbed = this.constructEffectChangesEmbed(change.before, change.after);
+      const changeEmbed = this.constructEffectChangesEmbed(
+        change.before,
+        change.after
+      );
 
       this.channel.send({ embeds: [embed, changeEmbed] });
     }
 
-    this.effects = fetchedEffects;
+    this.data.effects = fetchedEffects;
   }
 
   private constructEffectEmbed(
@@ -109,9 +124,12 @@ class HD2TrackerEntity extends WatcherEntity {
     }
 
     return new discord.EmbedBuilder()
-      .setAuthor({ name: `Galactic War Effect ${type} on ${this.apiType}` })
+      .setAuthor({
+        name: `Galactic War Effect ${type} on ${this.apiType}`,
+        iconURL: colourApiUrl(this.colour),
+      })
       .setTitle(
-        `${effect.id} \`${def_effect_types[effect.effectType] ?? 'UNK'} ${
+        `${effect.id} \`${def_effect_types[effect.effectType] ?? "UNK"} ${
           effect.effectType
         }\``
       )
@@ -119,12 +137,12 @@ class HD2TrackerEntity extends WatcherEntity {
         {
           name: "`nameHash`",
           value: `\`${effect.nameHash}\``,
-          inline: true
+          inline: true,
         },
         {
           name: "`gameplayEffectId32`",
           value: `\`${effect.gameplayEffectId32}\``,
-          inline: true
+          inline: true,
         },
         ...values.map((v, i) => ({
           name: `Value ${i + 1}`,
@@ -140,16 +158,16 @@ class HD2TrackerEntity extends WatcherEntity {
       );
   }
 
-  private constructEffectChangesEmbed(before: APIGalacticWarEffect, after: APIGalacticWarEffect): discord.EmbedBuilder {
+  private constructEffectChangesEmbed(
+    before: APIGalacticWarEffect,
+    after: APIGalacticWarEffect
+  ): discord.EmbedBuilder {
     const embed = new discord.EmbedBuilder()
-      .setAuthor({ name: 'Effect Changes' })
-      .setColor('#E0A313');
+      .setAuthor({ name: "Effect Changes" })
+      .setColor("#E0A313");
 
     for (const key of Object.keys(before)) {
-      if (
-        JSON.stringify(before[key]) !==
-        JSON.stringify(after[key])
-      ) {
+      if (JSON.stringify(before[key]) !== JSON.stringify(after[key])) {
         embed.addFields({
           name: key,
           value: `\`${before[key]}\` → \`${after[key]}\``,
