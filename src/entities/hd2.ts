@@ -82,6 +82,8 @@ class HD2TrackerEntity extends WatcherEntity {
         }
       }
     }
+
+    this.postponeDeathAndUpdate();
   }
 
   public toSaveData(): HD2TrackerEntityData {
