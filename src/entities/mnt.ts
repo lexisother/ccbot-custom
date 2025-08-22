@@ -23,7 +23,8 @@ class MntTrackerEntity extends WatcherEntity {
           : `New version released.\n\`${this.version}\` -> \`${version}\``
       );
       this.version = version;
-      this.updated();
+
+      this.postponeDeathAndUpdate();
     }
   }
 
