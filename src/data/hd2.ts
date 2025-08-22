@@ -84,7 +84,7 @@ export const def_effect_value_types: Record<number, string> = {
    0: "vt_None",
    1: "vt_Count",
    2: "vt_Percent",
-   3: "vt_UNK3",
+   3: "vt_Faction",
    4: "vt_MixID",
    5: "vt_UNK5",
    6: "vt_DEP_EnemyGroup",      // DEPRECATED, modern enemy group types use resourceHash instead
